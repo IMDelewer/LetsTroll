@@ -1,0 +1,9 @@
+blue_stend:
+  name: "Синий"
+  skin: "https://textures.minecraft.net/texture/..."
+  chestplate: "LEATHER_CHESTPLATE"
+  leggings: "LEATHER_LEGGINGS"
+  boots: "LEATHER_BOOTS"
+  color_chestplate: "#0000FF"
+  color_leggings: "#0000FF"
+  color_boots: "#0000FF"
