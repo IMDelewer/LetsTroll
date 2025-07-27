@@ -17,3 +17,5 @@ buildNumber.properties
 .classpath
 
 .idea/
+.idea/discord.xml
+.idea/.gitignore

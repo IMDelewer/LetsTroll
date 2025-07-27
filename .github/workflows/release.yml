@@ -1,0 +1,65 @@
+name: Build & Release LetsTroll
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: 🔨 Build and Release
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ☕ Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: 📦 Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: 🧪 Validate project
+        run: mvn validate
+
+      - name: 🧱 Build plugin with Maven
+        run: mvn clean package -DskipTests
+
+      - name: 🏷 Extract version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF_NAME#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: 📝 Rename output jar
+        run: |
+          mkdir -p release
+          JAR=$(ls target/*.jar | grep -v 'original' || true)
+          cp "$JAR" "release/LetsTroll-v${{ steps.get_version.outputs.VERSION }}.jar"
+
+      - name: 📰 Generate release notes from CHANGELOG
+        id: changelog
+        run: |
+          VERSION=${{ steps.get_version.outputs.VERSION }}
+          awk "/^## \\[?$VERSION\\]?/ {flag=1;next} /^## / {flag=0} flag" CHANGELOG.md > body.md || echo "No changelog found"
+        continue-on-error: true
+
+      - name: 🚀 Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Release v${{ steps.get_version.outputs.VERSION }}"
+          tag_name: v${{ steps.get_version.outputs.VERSION }}
+          body_path: body.md
+          files: release/*.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
