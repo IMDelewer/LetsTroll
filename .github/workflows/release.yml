@@ -14,9 +14,6 @@ jobs:
     permissions:
       contents: write
 
-    env:
-      MAVEN_OPTS: "-Xmx2G"
-
     steps:
       - name: 📥 Checkout repository
         uses: actions/checkout@v4
