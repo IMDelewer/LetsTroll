@@ -79,8 +79,8 @@ jobs:
       - name: 🚀 Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: "LetsTroll v${{ steps.extract_version.outputs.VERSION }} (MC API ${{ steps.mc_version.outputs.MC_VERSION }})"
-          tag_name: v${{ steps.extract_version.outputs.VERSION }}
+          name: "LetsTroll ${{ steps.extract_version.outputs.VERSION }} (Minecraft Version: ${{ steps.mc_version.outputs.MC_VERSION }})"
+          tag_name: ${{ steps.extract_version.outputs.VERSION }}
           body_path: body.md
           files: release/*.jar
           draft: false
