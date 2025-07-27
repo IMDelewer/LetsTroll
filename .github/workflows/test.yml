@@ -1,0 +1,14 @@
+name: Test Tag Trigger
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ✅ It works!
+        run: echo "🎉 GitHub Actions triggered successfully!"
