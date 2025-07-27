@@ -4,20 +4,24 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 jobs:
-  build:
+  build-and-release:
     name: 🔨 Build and Release
     runs-on: ubuntu-latest
 
     permissions:
       contents: write
 
+    env:
+      MAVEN_OPTS: "-Xmx2G"
+
     steps:
       - name: 📥 Checkout repository
         uses: actions/checkout@v4
 
-      - name: ☕ Set up Java 21
+      - name: ☕ Setup Java 21 (Temurin)
         uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -26,40 +30,67 @@ jobs:
       - name: 📦 Cache Maven dependencies
         uses: actions/cache@v3
         with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}-${{ hashFiles('**/src/**/*.java') }}
           restore-keys: |
             ${{ runner.os }}-maven-
 
       - name: 🧪 Validate project
         run: mvn validate
 
-      - name: 🧱 Build plugin with Maven
+      - name: 🧹 Clean and build plugin (skip tests)
         run: mvn clean package -DskipTests
 
       - name: 🏷 Extract version from tag
-        id: get_version
+        id: extract_version
         run: echo "VERSION=${GITHUB_REF_NAME#refs/tags/v}" >> $GITHUB_OUTPUT
 
-      - name: 📝 Rename output jar
+      - name: 📄 Extract Minecraft version from plugin.yml
+        id: mc_version
+        run: |
+          FILE=src/main/resources/plugin.yml
+          if [ ! -f "$FILE" ]; then
+            echo "plugin.yml not found!"
+            echo "MC_VERSION=unknown" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          MC_VER=$(grep '^api-version:' $FILE | head -1 | awk '{print $2}')
+          if [ -z "$MC_VER" ]; then
+            echo "MC_VERSION=unknown" >> $GITHUB_OUTPUT
+          else
+            echo "MC_VERSION=$MC_VER" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 📝 Prepare release dir and rename JAR with MC version
         run: |
           mkdir -p release
-          JAR=$(ls target/*.jar | grep -v 'original' || true)
-          cp "$JAR" "release/LetsTroll-v${{ steps.get_version.outputs.VERSION }}.jar"
+          JAR=$(ls target/*.jar | grep -v 'original' | head -n1)
+          if [ -z "$JAR" ]; then
+            echo "Error: JAR file not found!"
+            exit 1
+          fi
+          cp "$JAR" "release/LetsTroll-v${{ steps.extract_version.outputs.VERSION }}-mc${{ steps.mc_version.outputs.MC_VERSION }}.jar"
+        shell: bash
 
-      - name: 📰 Generate release notes from CHANGELOG
+      - name: 📰 Generate release notes from CHANGELOG.md
         id: changelog
         run: |
-          VERSION=${{ steps.get_version.outputs.VERSION }}
-          awk "/^## \\[?$VERSION\\]?/ {flag=1;next} /^## / {flag=0} flag" CHANGELOG.md > body.md || echo "No changelog found"
+          VERSION=${{ steps.extract_version.outputs.VERSION }}
+          awk "/^## \\[?$VERSION\\]?/ {flag=1;next} /^## / {flag=0} flag" CHANGELOG.md > body.md || echo "No changelog found for version $VERSION"
+          echo "Minecraft API Version: ${{ steps.mc_version.outputs.MC_VERSION }}" | cat - body.md > temp.md && mv temp.md body.md
         continue-on-error: true
 
       - name: 🚀 Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: "Release v${{ steps.get_version.outputs.VERSION }}"
-          tag_name: v${{ steps.get_version.outputs.VERSION }}
+          name: "LetsTroll v${{ steps.extract_version.outputs.VERSION }} (MC API ${{ steps.mc_version.outputs.MC_VERSION }})"
+          tag_name: v${{ steps.extract_version.outputs.VERSION }}
           body_path: body.md
           files: release/*.jar
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🧼 Cleanup release files
+        run: rm -rf release body.md || true

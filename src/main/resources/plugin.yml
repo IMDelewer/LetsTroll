@@ -1,7 +1,7 @@
 name: LetsTroll
-version: '1.0.1'
+version: '1.0.0'
 main: org.imdel.letstroll.LetsTroll
-api-version: '1.21'
+api-version: '1.21.1'
 
 commands:
   ghostmode:
