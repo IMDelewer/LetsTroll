@@ -1,7 +1,10 @@
 package org.imdel.letstroll.stand;
 
 import org.bukkit.*;
-import org.bukkit.command.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.ArmorStand;
@@ -15,7 +18,6 @@ import org.bukkit.profile.PlayerProfile;
 import org.bukkit.profile.PlayerTextures;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
-
 import org.imdel.letstroll.LetsTroll;
 
 import java.io.File;
@@ -40,29 +42,57 @@ public class StandCommand implements CommandExecutor, TabCompleter {
         return standConfig.getKeys(false);
     }
 
+    public static ItemStack parseArmor(ConfigurationSection stand, String part) {
+        String materialName = stand.getString(part);
+        if (materialName == null || materialName.isEmpty()) return null;
+
+        try {
+            Material material = Material.valueOf(materialName.toUpperCase());
+            ItemStack item = new ItemStack(material);
+
+            if (material.name().startsWith("LEATHER_")) {
+                String colorHex = stand.getString("color_" + part);
+                if (colorHex != null) {
+                    try {
+                        Color color = Color.fromRGB(Integer.parseInt(colorHex.replace("#", ""), 16));
+                        LeatherArmorMeta meta = (LeatherArmorMeta) item.getItemMeta();
+                        meta.setColor(color);
+                        item.setItemMeta(meta);
+                    } catch (Exception e) {
+                        Bukkit.getLogger().warning("Incorrect color for " + part + ": " + colorHex);
+                    }
+                }
+            }
+
+            return item;
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
             reloadStands();
-            sender.sendMessage(ChatColor.GREEN + "Стенды перезагружены из stands.yml");
+            sender.sendMessage(ChatColor.GREEN + "Stands reloaded from file stands.yml");
             return true;
         }
 
         if (args.length != 2) {
-            sender.sendMessage(ChatColor.RED + "/stand_conf <имя_стенда> <ник_игрока> или /stand_conf reload");
+            sender.sendMessage(ChatColor.RED + "/stand_conf <name_stand> <nick_player> or /stand_conf reload");
             return true;
         }
 
         String standName = args[0];
         Player target = Bukkit.getPlayerExact(args[1]);
         if (target == null) {
-            sender.sendMessage(ChatColor.RED + "Игрок не найден.");
+            sender.sendMessage(ChatColor.RED + "Player not found.");
             return true;
         }
 
         ConfigurationSection stand_conf = standConfig.getConfigurationSection(standName);
         if (stand_conf == null) {
-            sender.sendMessage(ChatColor.RED + "Стенд не найден в stands.yml");
+            sender.sendMessage(ChatColor.RED + "Stand not found in stands.yml");
             return true;
         }
 
@@ -111,34 +141,6 @@ public class StandCommand implements CommandExecutor, TabCompleter {
         }.runTaskLater(plugin, 5);
 
         return true;
-    }
-
-    public static ItemStack parseArmor(ConfigurationSection stand, String part) {
-        String materialName = stand.getString(part);
-        if (materialName == null || materialName.isEmpty()) return null;
-
-        try {
-            Material material = Material.valueOf(materialName.toUpperCase());
-            ItemStack item = new ItemStack(material);
-
-            if (material.name().startsWith("LEATHER_")) {
-                String colorHex = stand.getString("color_" + part);
-                if (colorHex != null) {
-                    try {
-                        Color color = Color.fromRGB(Integer.parseInt(colorHex.replace("#", ""), 16));
-                        LeatherArmorMeta meta = (LeatherArmorMeta) item.getItemMeta();
-                        meta.setColor(color);
-                        item.setItemMeta(meta);
-                    } catch (Exception e) {
-                        Bukkit.getLogger().warning("Неверный цвет для " + part + ": " + colorHex);
-                    }
-                }
-            }
-
-            return item;
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
     }
 
     private ItemStack createCustomHead(String url) {

@@ -1,15 +1,20 @@
 package org.imdel.letstroll.tool;
 
 import org.bukkit.ChatColor;
-import org.bukkit.command.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.*;
-
 import org.imdel.letstroll.stand.StandCommand;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 public class ToolCommand implements CommandExecutor, TabCompleter {
     private final JavaPlugin plugin;
@@ -25,12 +30,12 @@ public class ToolCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("Только для игроков.");
+            sender.sendMessage("Only for players.");
             return true;
         }
 
         if (args.length == 0) {
-            player.sendMessage(ChatColor.RED + "Использование: /tool stand <preset> | unbind | bind <action>");
+            player.sendMessage(ChatColor.RED + "Usage: /tool stand <preset> | unbind | bind <action>");
             return true;
         }
 
@@ -40,40 +45,40 @@ public class ToolCommand implements CommandExecutor, TabCompleter {
         switch (sub) {
             case "stand" -> {
                 if (args.length != 2) {
-                    player.sendMessage(ChatColor.RED + "Использование: /tool stand <preset>");
+                    player.sendMessage(ChatColor.RED + "Usage: /tool stand <preset>");
                     return true;
                 }
                 String preset = args[1];
                 if (!getStandPresets().contains(preset)) {
-                    player.sendMessage(ChatColor.RED + "Стенд '" + preset + "' не найден.");
+                    player.sendMessage(ChatColor.RED + "Stand '" + preset + "' not found.");
                     return true;
                 }
                 var meta = item.getItemMeta();
                 if (meta == null) {
-                    player.sendMessage(ChatColor.RED + "Нельзя привязать этот предмет.");
+                    player.sendMessage(ChatColor.RED + "You can't bind this item.");
                     return true;
                 }
                 meta.getPersistentDataContainer().set(ToolListener.KEY, PersistentDataType.STRING, "stand:" + preset);
                 item.setItemMeta(meta);
-                player.sendMessage(ChatColor.GREEN + "Привязан стенд: " + preset);
+                player.sendMessage(ChatColor.GREEN + "Bound stand: " + preset);
                 return true;
             }
 
             case "unbind" -> {
                 var meta = item.getItemMeta();
                 if (meta == null) {
-                    player.sendMessage(ChatColor.RED + "Нет метаданных.");
+                    player.sendMessage(ChatColor.RED + "No metadata found.");
                     return true;
                 }
                 meta.getPersistentDataContainer().remove(ToolListener.KEY);
                 item.setItemMeta(meta);
-                player.sendMessage(ChatColor.GREEN + "Привязка снята.");
+                player.sendMessage(ChatColor.GREEN + "Binding removed.");
                 return true;
             }
 
             case "bind" -> {
                 if (args.length != 2) {
-                    player.sendMessage(ChatColor.RED + "Использование: /tool bind <action>");
+                    player.sendMessage(ChatColor.RED + "Usage: /tool bind <action>");
                     return true;
                 }
 
@@ -84,16 +89,16 @@ public class ToolCommand implements CommandExecutor, TabCompleter {
                 if (List.of("lightning", "explosion", "tnt", "tnt_long", "end_crystal", "fake_item", "fall_fake").contains(val)) {
                     meta.getPersistentDataContainer().set(ToolListener.KEY, PersistentDataType.STRING, "action:" + val);
                     item.setItemMeta(meta);
-                    player.sendMessage(ChatColor.GREEN + "Привязано действие: " + val);
+                    player.sendMessage(ChatColor.GREEN + "Bound action: " + val);
                     return true;
                 }
-                player.sendMessage(ChatColor.RED + "Действие '" + val + "' не распознан.");
+                player.sendMessage(ChatColor.RED + "Action '" + val + "' not recognized.");
                 return true;
 
             }
 
             default -> {
-                player.sendMessage(ChatColor.RED + "Неизвестная подкоманда.");
+                player.sendMessage(ChatColor.RED + "Unknown subcommand.");
                 return true;
             }
         }
