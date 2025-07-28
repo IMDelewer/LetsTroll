@@ -29,7 +29,7 @@ public class Logger {
         Bukkit.getConsoleSender().sendMessage(PREFIX + message);
     }
 
-    public static void startup(String version, boolean isLatest, String commit) {
+    public static void startup(String version, boolean isLatest) {
         String mcVersion = Bukkit.getVersion().split("\\s")[0].replaceAll("[^0-9.]", "");
 
         final int w = 30;
@@ -40,7 +40,7 @@ public class Logger {
         Bukkit.getConsoleSender().sendMessage(BOLD + PURPLE + b.repeat(w + 2) + RESET);
         Bukkit.getConsoleSender().sendMessage(empty);
         Bukkit.getConsoleSender().sendMessage(center("Let's Troll v" + version, w, b));
-        Bukkit.getConsoleSender().sendMessage(center("by imdelewer", w, b));
+        Bukkit.getConsoleSender().sendMessage(center("by IMDelewer", w, b));
         Bukkit.getConsoleSender().sendMessage(center("Minecraft: " + mcVersion, w, b));
         Bukkit.getConsoleSender().sendMessage(empty);
 
@@ -48,8 +48,7 @@ public class Logger {
             Bukkit.getConsoleSender().sendMessage(center("You're running the latest version!", w, b));
         } else {
             String update = "A newer version is available!";
-            Bukkit.getConsoleSender().sendMessage(YELLOW + b + " " + update + " ".repeat(Math.max(0, w - update.length() - 1)) + b + RESET);
-            Bukkit.getConsoleSender().sendMessage(center("Commit: " + commit, w, b));
+            Bukkit.getConsoleSender().sendMessage("https://github.com/IMDelewer/LetsTroll/releases");
         }
 
         Bukkit.getConsoleSender().sendMessage(empty);

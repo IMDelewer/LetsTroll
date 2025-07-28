@@ -100,16 +100,19 @@ public class LetsTroll extends JavaPlugin {
                     String json = response.toString();
                     String latestTag = json.split("\"tag_name\":\"")[1].split("\"")[0];
 
+                    if (latestTag.startsWith("v")) {
+                        latestTag = latestTag.substring(1);
+                    }
                     boolean isLatest = currentVersion.equals(latestTag);
 
                     Bukkit.getScheduler().runTask(this, () ->
-                            Logger.startup(currentVersion, isLatest, latestTag)
+                            Logger.startup(currentVersion, isLatest)
                     );
                 }
             } catch (Exception e) {
                 Logger.warn("Version check failed: " + e.getMessage());
                 Bukkit.getScheduler().runTask(this, () ->
-                        Logger.startup(currentVersion, true, "unknown")
+                        Logger.startup(currentVersion, true)
                 );
             }
         });
