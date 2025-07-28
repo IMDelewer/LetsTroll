@@ -72,7 +72,7 @@ jobs:
         shell: bash
 
       - name: 📤 Upload release artifact for downstream jobs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: lets-troll-jar
           path: release/LetsTroll-${{ steps.extract_version.outputs.VERSION }}-mc${{ steps.mc_version.outputs.MC_VERSION }}.jar
