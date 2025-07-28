@@ -65,7 +65,7 @@ public class Logger {
     private static String center(String text, int width, String borderChar) {
         int padding = Math.max(0, (width - text.length()) / 2);
         int rightPadding = Math.max(0, width - text.length() - padding);
-        return PURPLE + borderChar + " ".repeat(padding) + text + " ".repeat(rightPadding) + borderChar + RESET;
+        return PREFIX + PURPLE + borderChar + " ".repeat(padding) + text + " ".repeat(rightPadding) + borderChar + RESET;
     }
 
 }
