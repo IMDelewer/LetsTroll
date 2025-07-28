@@ -13,6 +13,10 @@ jobs:
     permissions:
       contents: write
 
+    outputs:
+      version: ${{ steps.extract_version.outputs.VERSION }}
+      mc_version: ${{ steps.mc_version.outputs.MC_VERSION }}
+
     steps:
       - name: 📥 Checkout repository
         uses: actions/checkout@v4
@@ -46,7 +50,6 @@ jobs:
         run: |
           FILE=src/main/resources/plugin.yml
           if [ ! -f "$FILE" ]; then
-            echo "plugin.yml not found!"
             echo "MC_VERSION=unknown" >> $GITHUB_OUTPUT
             exit 0
           fi
@@ -67,6 +70,12 @@ jobs:
           fi
           cp "$JAR" "release/LetsTroll-${{ steps.extract_version.outputs.VERSION }}-mc${{ steps.mc_version.outputs.MC_VERSION }}.jar"
         shell: bash
+
+      - name: 📤 Upload release artifact for downstream jobs
+        uses: actions/upload-artifact@v3
+        with:
+          name: lets-troll-jar
+          path: release/LetsTroll-${{ steps.extract_version.outputs.VERSION }}-mc${{ steps.mc_version.outputs.MC_VERSION }}.jar
 
       - name: 📰 Generate release notes from CHANGELOG.md
         id: changelog
@@ -90,3 +99,46 @@ jobs:
 
       - name: 🧼 Cleanup release files
         run: rm -rf release body.md || true
+
+  upload-modrinth:
+    name: 🚀 Upload Release to Modrinth
+    runs-on: ubuntu-latest
+    needs: build-and-release
+
+    steps:
+      - name: 📥 Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: lets-troll-jar
+          path: release
+
+      - name: 📥 Checkout repository (for modrinth.json if needed)
+        uses: actions/checkout@v4
+
+      - name: 📦 Install Modrinth CLI
+        run: |
+          curl -L https://github.com/modrinth/modrinth-cli/releases/latest/download/modrinth-cli-linux-amd64.zip -o modrinth-cli.zip
+          unzip modrinth-cli.zip
+          sudo mv modrinth /usr/local/bin/
+          modrinth --version
+
+      - name: 🚀 Upload to Modrinth
+        env:
+          MODRINTH_API_TOKEN: ${{ secrets.MODRINTH_API_TOKEN }}
+        run: |
+          JAR_FILE=$(ls release/*.jar | head -n1)
+          VERSION=${{ needs.build-and-release.outputs.version }}
+          MC_VERSION=${{ needs.build-and-release.outputs.mc_version }}
+
+          PROJECT_ID="HWZ351z2"
+
+          modrinth upload version \
+            --project-id $PROJECT_ID \
+            --file "$JAR_FILE" \
+            --version-number "$VERSION" \
+            --game-versions "$MC_VERSION" \
+            --loaders "paper" \
+            --dependencies "minecraft" \
+            --changelog-file body.md \
+            --token "$MODRINTH_API_TOKEN"
+

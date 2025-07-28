@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.0.3] - 2025-07-28
+
+### Added
+
+* Added automatic upload of new plugin versions to Modrinth via GitHub Actions.
+* Changed `/tool` command actions to trigger on **right click** instead of left click.
+
+### Changed
+
+* Expanded logger banner for better readability and more information.
+* Renamed action `fall_fake` to `fake_fall` for improved naming consistency.
+
+### Fixed
+
+* Improved plugin stability related to asynchronous version checks and logging.
+
 ## [1.0.2] - 2025-07-28
 
 ### Added

@@ -35,7 +35,7 @@ public class ToolListener implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (event.getHand() != EquipmentSlot.HAND || !event.getAction().toString().contains("LEFT_CLICK")) return;
+        if (event.getHand() != EquipmentSlot.HAND || !event.getAction().toString().contains("RIGHT_CLICK")) return;
 
         Player player = event.getPlayer();
         ItemStack item = player.getInventory().getItemInMainHand();
@@ -68,7 +68,7 @@ public class ToolListener implements Listener {
                         player.sendMessage(ChatColor.RED + "No player in cursor");
                     }
                 }
-                case "fall_fake" -> {
+                case "fake_fall" -> {
                     Entity target = getTargetEntity(player, 50);
                     if (target instanceof Player targetPlayer) {
                         simulateFall(targetPlayer);

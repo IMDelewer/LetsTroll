@@ -32,7 +32,7 @@ public class Logger {
     public static void startup(String version, boolean isLatest) {
         String mcVersion = Bukkit.getVersion().split("\\s")[0].replaceAll("[^0-9.]", "");
 
-        final int w = 34;
+        final int w = 40;
         final String b = "▓";
         String empty = PREFIX + PURPLE + b + " ".repeat(w) + b + RESET;
 

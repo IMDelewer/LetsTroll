@@ -1,5 +1,5 @@
 name: LetsTroll
-version: '1.0.2'
+version: '1.0.3'
 main: org.imdel.letstroll.LetsTroll
 api-version: '1.21.1'
 

@@ -86,7 +86,7 @@ public class ToolCommand implements CommandExecutor, TabCompleter {
                 if (meta == null) return false;
                 String val = args[1].toLowerCase(Locale.ROOT);
 
-                if (List.of("lightning", "explosion", "tnt", "tnt_long", "end_crystal", "fake_item", "fall_fake").contains(val)) {
+                if (List.of("lightning", "explosion", "tnt", "tnt_long", "end_crystal", "fake_item", "fake_fall").contains(val)) {
                     meta.getPersistentDataContainer().set(ToolListener.KEY, PersistentDataType.STRING, "action:" + val);
                     item.setItemMeta(meta);
                     player.sendMessage(ChatColor.GREEN + "Bound action: " + val);
@@ -123,7 +123,7 @@ public class ToolCommand implements CommandExecutor, TabCompleter {
             }
 
             if (sub.equals("bind")) {
-                List<String> effects = List.of("lightning", "explosion", "tnt", "tnt_long", "end_crystal", "fake_item", "fall_fake");
+                List<String> effects = List.of("lightning", "explosion", "tnt", "tnt_long", "end_crystal", "fake_item", "fake_fall");
                 return effects.stream().filter(s -> s.startsWith(arg)).toList();
             }
         }
