@@ -45,16 +45,18 @@ public class Logger {
         Bukkit.getConsoleSender().sendMessage(empty);
 
         if (isLatest) {
-            Bukkit.getConsoleSender().sendMessage(center("You're running the latest version!", w, b));
+            Bukkit.getConsoleSender().sendMessage(center(PREFIX + GREEN + "You're running the latest version!" + RESET, w, b));
         } else {
-            String update = "A newer version is available!";
-            Bukkit.getConsoleSender().sendMessage("https://github.com/IMDelewer/LetsTroll/releases");
+            Bukkit.getConsoleSender().sendMessage(center(PREFIX + YELLOW + "A newer version is available!" + RESET, w, b));
+            String link = PREFIX + PURPLE + "→ https://github.com/IMDelewer/LetsTroll/releases" + RESET;
+            Bukkit.getConsoleSender().sendMessage(center(link, w, b));
         }
 
         Bukkit.getConsoleSender().sendMessage(empty);
         Bukkit.getConsoleSender().sendMessage(BOLD + PURPLE + b.repeat(w + 2) + RESET);
         Bukkit.getConsoleSender().sendMessage("");
     }
+
 
     private static void send(String level, String message) {
         Bukkit.getConsoleSender().sendMessage(PREFIX + "[" + level + "] " + message);
