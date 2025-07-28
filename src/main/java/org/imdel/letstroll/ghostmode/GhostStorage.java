@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public class GhostStorage {
-    private static Set<UUID> ghostPlayers = new HashSet<>();
+    private static final Set<UUID> ghostPlayers = new HashSet<>();
     private static File file;
     private static YamlConfiguration config;
 

@@ -65,7 +65,7 @@ jobs:
             echo "Error: JAR file not found!"
             exit 1
           fi
-          cp "$JAR" "release/LetsTroll-v${{ steps.extract_version.outputs.VERSION }}-mc${{ steps.mc_version.outputs.MC_VERSION }}.jar"
+          cp "$JAR" "release/LetsTroll-${{ steps.extract_version.outputs.VERSION }}-mc${{ steps.mc_version.outputs.MC_VERSION }}.jar"
         shell: bash
 
       - name: 📰 Generate release notes from CHANGELOG.md
@@ -79,7 +79,7 @@ jobs:
       - name: 🚀 Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: "LetsTroll ${{ steps.extract_version.outputs.VERSION }} (Minecraft Version: ${{ steps.mc_version.outputs.MC_VERSION }})"
+          name: "LetsTroll ${{ steps.extract_version.outputs.VERSION }}"
           tag_name: ${{ steps.extract_version.outputs.VERSION }}
           body_path: body.md
           files: release/*.jar

@@ -3,10 +3,10 @@ package org.imdel.letstroll.tool;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -15,7 +15,6 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
-
 import org.imdel.letstroll.stand.StandCommand;
 
 import java.util.HashSet;
@@ -66,16 +65,15 @@ public class ToolListener implements Listener {
                     if (target instanceof Player targetPlayer) {
                         spawnFakeItem(targetPlayer);
                     } else {
-                        player.sendMessage(ChatColor.RED + "Нет игрока в прицеле.");
+                        player.sendMessage(ChatColor.RED + "No player in cursor");
                     }
                 }
                 case "fall_fake" -> {
                     Entity target = getTargetEntity(player, 50);
                     if (target instanceof Player targetPlayer) {
                         simulateFall(targetPlayer);
-                        player.sendMessage(ChatColor.GREEN + "Fake fall на " + targetPlayer.getName());
                     } else {
-                        player.sendMessage(ChatColor.RED + "Нет игрока в прицеле.");
+                        player.sendMessage(ChatColor.RED + "No player in cursor");
                     }
                 }
             }
@@ -118,7 +116,7 @@ public class ToolListener implements Listener {
         var standConfig = StandCommand.standConfig;
         var stand_conf = standConfig.getConfigurationSection(preset);
         if (stand_conf == null) {
-            player.sendMessage(ChatColor.RED + "Стенд не найден.");
+            player.sendMessage(ChatColor.RED + "Stand not found.");
             return;
         }
 
@@ -153,7 +151,7 @@ public class ToolListener implements Listener {
     private void spawnFakeExplosion(Player player) {
         Block targetBlock = player.getTargetBlockExact(30);
         if (targetBlock == null) {
-            player.sendMessage(ChatColor.RED + "Нет блока в прицеле.");
+            player.sendMessage(ChatColor.RED + "No block on cursor.");
             return;
         }
 
@@ -179,13 +177,13 @@ public class ToolListener implements Listener {
                     crystal.remove();
                 }
             }
-        }.runTaskLater(plugin, 20L); // 1 секунда
+        }.runTaskLater(plugin, 20L);
     }
 
     private void spawnFakeTNT(Player player, int ticks) {
         Block targetBlock = player.getTargetBlockExact(30);
         if (targetBlock == null) {
-            player.sendMessage(ChatColor.RED + "Нет подходящего блока в прицеле.");
+            player.sendMessage(ChatColor.RED + "No block on cursor.");
             return;
         }
 
@@ -217,14 +215,14 @@ public class ToolListener implements Listener {
                     world.playSound(item.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1f, 1f);
                 }
             }
-        }.runTaskLater(plugin, 40L); // 2 секунды
+        }.runTaskLater(plugin, 40L);
     }
 
     private void simulateFall(Player player) {
         Location start = player.getLocation().clone();
         Location up = start.clone().add(0, 10, 0);
 
-        fallingPlayers.add(player.getUniqueId()); // Добавляем в список "падающих"
+        fallingPlayers.add(player.getUniqueId());
 
         player.teleport(up);
         player.setFallDistance(0);
@@ -244,7 +242,7 @@ public class ToolListener implements Listener {
                 player.getWorld().playSound(start, Sound.BLOCK_SLIME_BLOCK_PLACE, 1f, 1.2f);
                 player.spawnParticle(Particle.CLOUD, start, 10, 0.2, 0.2, 0.2, 0.01);
 
-                fallingPlayers.remove(player.getUniqueId()); // Убираем из списка после "падения"
+                fallingPlayers.remove(player.getUniqueId());
             }
         }.runTaskLater(plugin, 40L);
     }
@@ -254,7 +252,7 @@ public class ToolListener implements Listener {
         if (event.getEntity() instanceof Player player) {
             if (fallingPlayers.contains(player.getUniqueId())) {
                 if (event.getCause() == EntityDamageEvent.DamageCause.FALL) {
-                    event.setCancelled(true); // Отменяем урон от падения для "фейлового падения"
+                    event.setCancelled(true);
                 }
             }
         }
