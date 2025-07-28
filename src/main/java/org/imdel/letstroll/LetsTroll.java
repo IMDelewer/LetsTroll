@@ -133,6 +133,6 @@ public class LetsTroll extends JavaPlugin {
         activeTasks.forEach(BukkitTask::cancel);
         activeTasks.clear();
 
-        Logger.info("Plugin disabled.");
+        Logger.info("Let's Troll disabled.");
     }
 }

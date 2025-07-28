@@ -13,6 +13,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.imdel.letstroll.stand.StandCommand;
@@ -76,6 +78,16 @@ public class ToolListener implements Listener {
                         player.sendMessage(ChatColor.RED + "No player in cursor");
                     }
                 }
+                case "stun" -> {
+                    Entity target = getTargetEntity(player, 50);
+                    if (target instanceof Player targetPlayer) {
+                        applyStunEffect(targetPlayer);
+                    } else {
+                        player.sendMessage(ChatColor.RED + "No player in cursor");
+                    }
+                }
+                case "creeper" -> spawnFakeCreeper(player);
+
             }
         }
     }
@@ -247,6 +259,33 @@ public class ToolListener implements Listener {
         }.runTaskLater(plugin, 40L);
     }
 
+    private void applyStunEffect(Player target) {
+        target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 60, 10)); // 3 секунды, уровень 11
+        target.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, 1)); // 3 секунды
+        target.getWorld().playSound(target.getLocation(), Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, 1f, 0.5f);
+        target.sendMessage(ChatColor.DARK_PURPLE + "You feel disoriented...");
+    }
+
+    private void spawnFakeCreeper(Player player) {
+        Location loc = player.getLocation().add(player.getLocation().getDirection().normalize().multiply(2));
+        Creeper creeper = (Creeper) player.getWorld().spawnEntity(loc, EntityType.CREEPER);
+        creeper.setPowered(false);
+        creeper.setAI(false);
+        creeper.setSilent(true);
+        creeper.setInvisible(false);
+        creeper.setInvulnerable(true);
+        creeper.setMetadata("letstroll_fake", new FixedMetadataValue(plugin, true));
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (!creeper.isDead()) creeper.remove();
+                player.getWorld().playSound(loc, Sound.ENTITY_CREEPER_PRIMED, 1f, 1.5f);
+            }
+        }.runTaskLater(plugin, 5L); // 0.25 сек
+    }
+
+
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityDamage(EntityDamageEvent event) {
         if (event.getEntity() instanceof Player player) {
@@ -257,4 +296,5 @@ public class ToolListener implements Listener {
             }
         }
     }
+
 }
