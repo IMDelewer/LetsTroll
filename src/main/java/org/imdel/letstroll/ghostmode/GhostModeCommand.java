@@ -1,14 +1,15 @@
 
 package org.imdel.letstroll.ghostmode;
 
-import org.bukkit.*;
-import org.bukkit.command.*;
+import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-
-import java.util.*;
 
 public class GhostModeCommand implements CommandExecutor {
     private final JavaPlugin plugin;
@@ -24,7 +25,7 @@ public class GhostModeCommand implements CommandExecutor {
             return true;
         }
 
-        if (!player.hasPermission("ghostmode.use")) {
+        if (!player.hasPermission("ghost.use")) {
             player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
             return true;
         }
