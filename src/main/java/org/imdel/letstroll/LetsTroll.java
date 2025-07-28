@@ -23,6 +23,7 @@ import java.util.Set;
 public class LetsTroll extends JavaPlugin {
     private static LetsTroll instance;
     private static final String VERSION_API = "https://api.github.com/repos/imdelewer/LetsTroll/releases/latest";
+
     private final Set<BukkitTask> activeTasks = new HashSet<>();
     private Thread watchThread;
 
@@ -35,29 +36,17 @@ public class LetsTroll extends JavaPlugin {
         instance = this;
 
         String currentVersion = getDescription().getVersion();
-        Logger.startup(currentVersion);
 
         GhostStorage.init(this);
 
-        // Регистрация команд и слушателей
+        registerCommand("ghost", new GhostModeCommand(this), null);
+        StandCommand standCommand = new StandCommand(this);
+        registerCommand("stand", standCommand, standCommand);
         Bukkit.getPluginManager().registerEvents(new GhostModeListener(this), this);
-        PluginCommand ghostCmd = this.getCommand("ghost");
-        if (ghostCmd != null) ghostCmd.setExecutor(new GhostModeCommand(this));
 
-        PluginCommand standCmd = this.getCommand("stand");
-        if (standCmd != null) {
-            StandCommand standCommand = new StandCommand(this);
-            standCmd.setExecutor(standCommand);
-            standCmd.setTabCompleter(standCommand);
-        }
-
+        ToolCommand toolCommand = new ToolCommand(this);
+        registerCommand("tool", toolCommand, toolCommand);
         Bukkit.getPluginManager().registerEvents(new ToolListener(this), this);
-        PluginCommand toolCmd = this.getCommand("tool");
-        if (toolCmd != null) {
-            ToolCommand toolCommand = new ToolCommand(this);
-            toolCmd.setExecutor(toolCommand);
-            toolCmd.setTabCompleter(toolCommand);
-        }
 
         saveResource("stands.yml", false);
         StandCommand.reloadStands();
@@ -66,9 +55,16 @@ public class LetsTroll extends JavaPlugin {
         checkVersionAsync(currentVersion);
     }
 
+    private void registerCommand(String name, org.bukkit.command.CommandExecutor executor, org.bukkit.command.TabCompleter completer) {
+        PluginCommand cmd = getCommand(name);
+        if (cmd != null) {
+            cmd.setExecutor(executor);
+            if (completer != null) cmd.setTabCompleter(completer);
+        }
+    }
+
     private void startWatchStandFile() {
         Path folder = getDataFolder().toPath();
-
         watchThread = new Thread(() -> {
             try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
                 folder.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
@@ -76,7 +72,7 @@ public class LetsTroll extends JavaPlugin {
                     WatchKey key = watchService.take();
                     for (WatchEvent<?> event : key.pollEvents()) {
                         Path changed = (Path) event.context();
-                        if (changed.getFileName().toString().equals("stands.yml")) {
+                        if ("stands.yml".equals(changed.getFileName().toString())) {
                             Bukkit.getScheduler().runTask(this, StandCommand::reloadStands);
                             Logger.fancy("▓▒░ [stands.yml] configuration updated. ░▒▓");
                         }
@@ -84,12 +80,10 @@ public class LetsTroll extends JavaPlugin {
                     key.reset();
                 }
             } catch (InterruptedException ignored) {
-                // Expected when thread is interrupted on shutdown
             } catch (Exception e) {
                 Logger.error("Error watching stands.yml: " + e.getMessage());
             }
         }, "LetsTroll-StandWatcher");
-
         watchThread.start();
     }
 
@@ -98,29 +92,27 @@ public class LetsTroll extends JavaPlugin {
             try {
                 HttpURLConnection con = (HttpURLConnection) new URL(VERSION_API).openConnection();
                 con.setRequestProperty("Accept", "application/vnd.github.v3+json");
-                BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
+                    StringBuilder response = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) response.append(line);
 
-                StringBuilder response = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    response.append(line);
-                }
-                reader.close();
+                    String json = response.toString();
+                    String latestTag = json.split("\"tag_name\":\"")[1].split("\"")[0];
 
-                String json = response.toString();
-                String latestTag = json.split("\"tag_name\":\"")[1].split("\"")[0];
+                    boolean isLatest = currentVersion.equals(latestTag);
 
-                if (!currentVersion.equals(latestTag)) {
-                    Logger.fancy("░ New version available: " + latestTag);
-                    Logger.fancy("▒ Please update: https://github.com/imdelewer/LetsTroll/releases");
-                } else {
-                    Logger.fancy("▓ You are running the latest version.");
+                    Bukkit.getScheduler().runTask(this, () ->
+                            Logger.startup(currentVersion, isLatest, latestTag)
+                    );
                 }
             } catch (Exception e) {
                 Logger.warn("Version check failed: " + e.getMessage());
+                Bukkit.getScheduler().runTask(this, () ->
+                        Logger.startup(currentVersion, true, "unknown")
+                );
             }
         });
-
         activeTasks.add(task);
     }
 
@@ -135,9 +127,7 @@ public class LetsTroll extends JavaPlugin {
             } catch (InterruptedException ignored) {}
         }
 
-        for (BukkitTask task : activeTasks) {
-            task.cancel();
-        }
+        activeTasks.forEach(BukkitTask::cancel);
         activeTasks.clear();
 
         Logger.fancy("Plugin disabled.");

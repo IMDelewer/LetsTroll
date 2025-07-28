@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.0.2] - 2025-07-28
+
+### Added
+
+* Asynchronous plugin version check from GitHub using `Bukkit.getScheduler().runTaskAsynchronously`.
+* Centralized logging of version check results via `Logger.startup` on the main server thread.
+* Error handling for GitHub requests with warnings logged through `Logger.warn` and fallback default version message.
+
+### Changed
+
+* Moved version info output exclusively to `Logger.startup`.
+* Removed direct calls to `Logger.startup` from `onEnable()`, so version logging depends solely on async version check results.
+* Ensured thread-safe logging by scheduling log calls on Bukkit’s main thread (`runTask`).
+* Optimized `onEnable()` method for cleaner and safer plugin startup.
+
+### Fixed
+
+* Fixed duplicated and premature version messages during plugin startup.
+
 ## [1.0.1] - 2025-07-28
 
 ### Added
