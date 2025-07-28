@@ -34,12 +34,12 @@ public class Logger {
 
         final int w = 30;
         final String b = "▓";
-        String empty = PURPLE + b + " ".repeat(w) + b + RESET;
+        String empty = PREFIX + PURPLE + b + " ".repeat(w) + b + RESET;
 
         Bukkit.getConsoleSender().sendMessage("");
         Bukkit.getConsoleSender().sendMessage(BOLD + PURPLE + b.repeat(w + 2) + RESET);
         Bukkit.getConsoleSender().sendMessage(empty);
-        Bukkit.getConsoleSender().sendMessage(center("Let's Troll v" + version, w, b));
+        Bukkit.getConsoleSender().sendMessage(center("Let's Troll version" + version, w, b));
         Bukkit.getConsoleSender().sendMessage(center("by IMDelewer", w, b));
         Bukkit.getConsoleSender().sendMessage(center("Minecraft: " + mcVersion, w, b));
         Bukkit.getConsoleSender().sendMessage(empty);
@@ -64,6 +64,8 @@ public class Logger {
 
     private static String center(String text, int width, String borderChar) {
         int padding = Math.max(0, (width - text.length()) / 2);
-        return PURPLE + borderChar + " ".repeat(padding) + text + " ".repeat(width - text.length() - padding) + borderChar + RESET;
+        int rightPadding = Math.max(0, width - text.length() - padding);
+        return PURPLE + borderChar + " ".repeat(padding) + text + " ".repeat(rightPadding) + borderChar + RESET;
     }
+
 }
