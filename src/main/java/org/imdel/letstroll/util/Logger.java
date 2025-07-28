@@ -26,7 +26,7 @@ public class Logger {
     }
 
     public static void fancy(String message) {
-        Bukkit.getConsoleSender().sendMessage(PREFIX + message);
+        Bukkit.getConsoleSender().sendMessage(PREFIX + PURPLE + message + RESET);
     }
 
     public static void startup(String version, boolean isLatest) {

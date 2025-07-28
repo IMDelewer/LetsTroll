@@ -1,34 +1,34 @@
 name: LetsTroll
-version: '1.0.1'
+version: '1.0.2'
 main: org.imdel.letstroll.LetsTroll
 api-version: '1.21.1'
 
 commands:
-  ghostmode:
+  ghost:
     description: Manage the ghost mode for players (toggle invisibility and join/quit message suppression)
-    usage: /ghostmode <enable|disable|toggle|list|reload>
-    permission: letstroll.ghostmode.use
+    usage: /ghost
+    permission: letstroll.ghost.use
     permission-message: You do not have permission to use ghost mode commands.
 
-  stend:
+  stand:
     description: Spawn predefined Armor Stands with custom appearance
-    usage: /stend <stend_name> <player_name> | /stend reload
-    permission: letstroll.stend.use
-    permission-message: You do not have permission to use the stend command.
+    usage: /stand <stand_name> <player_name> | /stand reload
+    permission: letstroll.stand.use
+    permission-message: You do not have permission to use the stand command.
 
   tool:
     description: Tool command for trolling presets and entity summoning
-    usage: /tool <bind|unbind|summon|list> [arguments]
+    usage: /tool <bind|unbind|stand|> [arguments]
     permission: letstroll.tool.use
     permission-message: You do not have permission to use the tool commands.
 
 permissions:
-  letstroll.ghostmode.use:
+  letstroll.ghost.use:
     description: Allows the player to use ghost mode commands
     default: op
 
-  letstroll.stend.use:
-    description: Allows the player to use the stend command to spawn Armor Stands
+  letstroll.stand.use:
+    description: Allows the player to use the stand command to spawn Armor Stands
     default: op
 
   letstroll.tool.use:

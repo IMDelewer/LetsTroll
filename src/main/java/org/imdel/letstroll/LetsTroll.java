@@ -74,7 +74,7 @@ public class LetsTroll extends JavaPlugin {
                         Path changed = (Path) event.context();
                         if ("stands.yml".equals(changed.getFileName().toString())) {
                             Bukkit.getScheduler().runTask(this, StandCommand::reloadStands);
-                            Logger.fancy("▓▒░ [stands.yml] configuration updated. ░▒▓");
+                            Logger.info("▓▒░ stands.yml configuration updated. ░▒▓");
                         }
                     }
                     key.reset();
@@ -133,6 +133,6 @@ public class LetsTroll extends JavaPlugin {
         activeTasks.forEach(BukkitTask::cancel);
         activeTasks.clear();
 
-        Logger.fancy("Plugin disabled.");
+        Logger.info("Plugin disabled.");
     }
 }
