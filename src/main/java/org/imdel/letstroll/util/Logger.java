@@ -32,12 +32,12 @@ public class Logger {
     public static void startup(String version, boolean isLatest) {
         String mcVersion = Bukkit.getVersion().split("\\s")[0].replaceAll("[^0-9.]", "");
 
-        final int w = 30;
+        final int w = 34;
         final String b = "▓";
         String empty = PREFIX + PURPLE + b + " ".repeat(w) + b + RESET;
 
         Bukkit.getConsoleSender().sendMessage("");
-        Bukkit.getConsoleSender().sendMessage(BOLD + PURPLE + b.repeat(w + 2) + RESET);
+        Bukkit.getConsoleSender().sendMessage(PREFIX + BOLD + PURPLE + b.repeat(w + 2) + RESET);
         Bukkit.getConsoleSender().sendMessage(empty);
         Bukkit.getConsoleSender().sendMessage(center("Let's Troll version" + version, w, b));
         Bukkit.getConsoleSender().sendMessage(center("by IMDelewer", w, b));
@@ -45,15 +45,15 @@ public class Logger {
         Bukkit.getConsoleSender().sendMessage(empty);
 
         if (isLatest) {
-            Bukkit.getConsoleSender().sendMessage(center(PREFIX + GREEN + "You're running the latest version!" + RESET, w, b));
+            Bukkit.getConsoleSender().sendMessage(center( GREEN + "You're running the latest version!", w, b));
         } else {
-            Bukkit.getConsoleSender().sendMessage(center(PREFIX + YELLOW + "A newer version is available!" + RESET, w, b));
+            Bukkit.getConsoleSender().sendMessage(center( YELLOW + "A newer version is available!", w, b));
             String link = PREFIX + PURPLE + "→ https://github.com/IMDelewer/LetsTroll/releases" + RESET;
             Bukkit.getConsoleSender().sendMessage(center(link, w, b));
         }
 
         Bukkit.getConsoleSender().sendMessage(empty);
-        Bukkit.getConsoleSender().sendMessage(BOLD + PURPLE + b.repeat(w + 2) + RESET);
+        Bukkit.getConsoleSender().sendMessage(PREFIX + BOLD + PURPLE + b.repeat(w + 2) + RESET);
         Bukkit.getConsoleSender().sendMessage("");
     }
 
