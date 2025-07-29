@@ -17,6 +17,8 @@
   <a href="https://github.com/IMDelewer/LetsTroll/blob/main/LICENSE"><img src="https://img.shields.io/github/license/IMDelewer/LetsTroll" alt="License" /></a>
   <img src="https://img.shields.io/github/languages/top/IMDelewer/LetsTroll" alt="Top Language" />
   <img src="https://img.shields.io/github/last-commit/IMDelewer/LetsTroll" alt="Last Commit" />
+  <a href="https://www.donationalerts.com/r/imdelewer"><img src="https://img.shields.io/badge/Donate-💖-red" alt="DonationAlerts" /></a>
+
 </p>
 
 ---
