@@ -37,6 +37,10 @@ sourceSets.main {
     resources.srcDir(layout.buildDirectory.dir("generated-resources"))
 }
 
+runPaper.folia.registerTask {
+    minecraftVersion(libs.versions.minecraft.get())
+}
+
 tasks {
     processResources {
         dependsOn(brandedTranslations)

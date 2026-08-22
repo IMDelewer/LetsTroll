@@ -146,6 +146,12 @@ A test server:
 ./gradlew :paper:runServer
 ```
 
+Or the same thing on Folia, to check the regionised schedulers:
+
+```
+./gradlew :paper:runFolia
+```
+
 The Paper jar is downloaded on first run. If you keep one in `.cache/`, it is used instead.
 
 Artifacts are named `LetsTroll-<loader>-<minecraft>-<version>.jar`. The version comes from `build.gradle.kts` and can be overridden for a build with `-PbuildVersion=2.0.1`.
