@@ -73,7 +73,6 @@ jobs:
             loaders: |
               paper
               purpur
-              folia
           - artifact: LetsTroll-fabric
             loaders: |
               fabric
