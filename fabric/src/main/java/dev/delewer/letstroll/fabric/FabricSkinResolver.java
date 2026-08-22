@@ -72,6 +72,14 @@ public final class FabricSkinResolver {
         return cleaned;
     }
 
+    public Optional<String> cached(String name) {
+        if (name == null || !NAME.matcher(name).matches()) {
+            return Optional.empty();
+        }
+        Optional<String> hit = cache.get(name.toLowerCase(Locale.ROOT));
+        return hit == null ? Optional.empty() : hit;
+    }
+
     public CompletableFuture<Optional<String>> byName(String name) {
         if (name == null || !NAME.matcher(name).matches()) {
             return CompletableFuture.completedFuture(Optional.empty());

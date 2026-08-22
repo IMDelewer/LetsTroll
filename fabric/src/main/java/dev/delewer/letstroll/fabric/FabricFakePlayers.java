@@ -51,27 +51,26 @@ public final class FabricFakePlayers implements FakePlayerService {
         if (!(target.handle() instanceof ServerPlayerEntity player)) {
             return;
         }
-        String texture;
-        String name;
         if (spec.copyTargetSkin()) {
-            texture = textureOf(player.getGameProfile());
-            name = null;
-        } else {
-            texture = FabricSkinResolver.immediateTexture(spec.skinOwner()).orElse(null);
-            name = FabricSkinResolver.nameFrom(spec.skinOwner());
-        }
-
-        Fake fake = doSpawn(target, player, spec, texture);
-        if (fake == null) {
+            doSpawn(target, player, spec, textureOf(player.getGameProfile()));
             return;
         }
-        if (texture == null && !spec.copyTargetSkin() && name != null && !name.isBlank()) {
-            skins.byName(name).whenComplete((resolved, error) -> {
-                if (resolved != null && resolved.isPresent()) {
-                    scheduler.sync(() -> replaceSkin(target, fake, spec, resolved.get()));
-                }
-            });
+
+        String immediate = FabricSkinResolver.immediateTexture(spec.skinOwner()).orElse(null);
+        if (immediate != null) {
+            doSpawn(target, player, spec, immediate);
+            return;
         }
+
+        String name = FabricSkinResolver.nameFrom(spec.skinOwner());
+        Optional<String> hit = skins.cached(name);
+        if (hit.isPresent()) {
+            doSpawn(target, player, spec, hit.get());
+            return;
+        }
+
+        skins.byName(name).whenComplete((resolved, error) -> scheduler.sync(
+                () -> doSpawn(target, player, spec, resolved == null ? null : resolved.orElse(null))));
     }
 
     private Fake doSpawn(PlayerRef target, ServerPlayerEntity player, FakePlayerSpec spec, String texture) {
@@ -105,18 +104,6 @@ public final class FabricFakePlayers implements FakePlayerService {
             scheduler.later(() -> despawn(target, spec.visibleOnlyToTarget(), fake), spec.lifetimeTicks());
         }
         return fake;
-    }
-
-    private void replaceSkin(PlayerRef target, Fake old, FakePlayerSpec spec, String texture) {
-        if (!(target.handle() instanceof ServerPlayerEntity player)) {
-            return;
-        }
-        List<Fake> list = spawned.get(target.id());
-        if (list == null || !list.remove(old)) {
-            return;
-        }
-        sendRemoval(player, spec.visibleOnlyToTarget(), old);
-        doSpawn(target, player, spec, texture);
     }
 
     @Override

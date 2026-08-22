@@ -41,24 +41,20 @@ public final class PaperFakePlayers implements FakePlayerService {
         Optional<String> known = spec.copyTargetSkin()
                 ? skins.fromProfile(player.getPlayerProfile())
                 : SkinResolver.immediateTexture(spec.skinOwner());
-
-        Mannequin mannequin = doSpawn(target, spec, known.orElse(null));
-        if (mannequin == null || known.isPresent()) {
+        if (known.isPresent()) {
+            doSpawn(target, spec, known.get());
             return;
         }
 
         String name = spec.copyTargetSkin() ? player.getName() : SkinResolver.nameFrom(spec.skinOwner());
-        UUID entityId = mannequin.getUniqueId();
-        skins.byName(name).whenComplete((texture, error) -> {
-            if (texture == null || texture.isEmpty()) {
-                return;
-            }
-            PaperTasks.onEntity(plugin, mannequin, () -> {
-                if (Bukkit.getEntity(entityId) instanceof Mannequin live) {
-                    live.setProfile(texturedProfile(texture.get()));
-                }
-            });
-        });
+        Optional<String> hit = skins.cached(name);
+        if (hit.isPresent()) {
+            doSpawn(target, spec, hit.get());
+            return;
+        }
+
+        skins.byName(name).whenComplete((texture, error) -> PaperTasks.onEntity(plugin, player,
+                () -> doSpawn(target, spec, texture == null ? null : texture.orElse(null))));
     }
 
     private Mannequin doSpawn(PlayerRef target, FakePlayerSpec spec, String texture) {
