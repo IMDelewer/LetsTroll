@@ -1,0 +1,14 @@
+* text=auto eol=lf
+
+*.java text diff=java
+*.kts text
+*.yml text
+*.json text
+*.md text
+
+gradlew text eol=lf
+gradlew.bat text eol=crlf
+
+*.jar binary
+*.png binary
+*.accesswidener text eol=lf

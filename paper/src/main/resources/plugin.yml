@@ -1,0 +1,32 @@
+name: LetsTroll
+version: '${version}'
+main: dev.delewer.letstroll.paper.LetsTrollPlugin
+api-version: '1.21'
+authors: [IMDelewer]
+description: Trolling toolkit driven by a single menu.
+website: https://modrinth.com/plugin/lets-troll
+permissions:
+  letstroll.use:
+    description: Open the LetsTroll menu
+    default: op
+  letstroll.admin:
+    description: Manage LetsTroll settings
+    default: op
+  letstroll.ghost:
+    description: Use ghost mode
+    default: op
+  letstroll.ghost.others:
+    description: Put other players into ghost mode
+    default: op
+  letstroll.mannequin:
+    description: Spawn fake players in front of a victim
+    default: op
+  letstroll.lag:
+    description: Rubberband a player with fake lag
+    default: op
+  letstroll.effects:
+    description: Apply effects and scares to a player
+    default: op
+  letstroll.immune:
+    description: Cannot be hit by automatic events
+    default: false
