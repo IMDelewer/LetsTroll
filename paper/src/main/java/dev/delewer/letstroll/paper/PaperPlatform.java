@@ -40,6 +40,7 @@ public final class PaperPlatform implements TrollPlatform {
     private final ItemBindingService itemBindings;
     private final dev.delewer.letstroll.platform.ChainOps chain;
     private final dev.ua.theroer.magicutils.integrations.PlaceholderApiIntegration placeholders;
+    private final PaperNetworkLag networkLag;
 
     public PaperPlatform(JavaPlugin plugin, ConfigStore configs, MenuBackend menus, PaperStealth stealth,
                          PaperEvents events, SoundService sounds, TextInputService input, FakePlayerService fakePlayers,
@@ -61,6 +62,7 @@ public final class PaperPlatform implements TrollPlatform {
         this.players = new PaperPlayers();
         this.scheduler = new PaperScheduler(plugin);
         this.placeholders = new dev.ua.theroer.magicutils.integrations.PlaceholderApiIntegration(plugin);
+        this.networkLag = new PaperNetworkLag(logger.create("Lag"));
     }
 
     @Override
@@ -160,6 +162,23 @@ public final class PaperPlatform implements TrollPlatform {
     @Override
     public ItemBindingService itemBindings() {
         return itemBindings;
+    }
+
+    public PaperNetworkLag networkLag() {
+        return networkLag;
+    }
+
+    @Override
+    public boolean holdPackets(dev.delewer.letstroll.platform.PlayerRef target, long delayMillis, boolean dangerous) {
+        return target.handle() instanceof org.bukkit.entity.Player player
+                && networkLag.start(player, delayMillis, dangerous);
+    }
+
+    @Override
+    public void releasePackets(dev.delewer.letstroll.platform.PlayerRef target) {
+        if (target.handle() instanceof org.bukkit.entity.Player player) {
+            networkLag.stop(player);
+        }
     }
 
     @Override

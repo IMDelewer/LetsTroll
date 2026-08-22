@@ -47,4 +47,11 @@ public interface TrollPlatform {
     default String placeholders(PlayerRef viewer, String text) {
         return text;
     }
+
+    default boolean holdPackets(PlayerRef target, long delayMillis, boolean dangerous) {
+        return false;
+    }
+
+    default void releasePackets(PlayerRef target) {
+    }
 }

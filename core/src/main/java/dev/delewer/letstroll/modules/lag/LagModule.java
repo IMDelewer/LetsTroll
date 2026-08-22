@@ -10,6 +10,8 @@ import dev.delewer.letstroll.module.ModuleContext;
 import dev.delewer.letstroll.module.TrollModule;
 import dev.delewer.letstroll.platform.PlayerRef;
 import dev.delewer.letstroll.player.PlayerAction;
+import dev.delewer.letstroll.menu.ScreenRequest;
+import dev.delewer.letstroll.text.DurationText;
 import dev.delewer.letstroll.text.Text;
 import net.kyori.adventure.text.Component;
 
@@ -19,11 +21,12 @@ public final class LagModule implements LetsTrollModule {
     public static final String PERMISSION = "letstroll.lag";
 
     private LagService service;
+    private LagConfig config;
 
     @Override
     public void enable(ModuleContext context) {
-        LagConfig config = context.config(LagConfig.class);
-        service = new LagService(context.platform());
+        config = context.config(LagConfig.class);
+        service = new LagService(context.platform(), config);
 
         context.playerAction(new PlayerAction() {
 
@@ -52,7 +55,9 @@ public final class LagModule implements LetsTrollModule {
                 return List.of(
                         Text.get(target, "lag.action.description"),
                         Text.get(target, "lag.action.power", config.strength()),
+                        Text.get(target, "lag.action.delay", DurationText.format(config.delayMillis())),
                         Text.get(target, "lag.action.adjust"),
+                        Text.get(target, "lag.delay.adjust"),
                         Text.get(target, service.isLagging(target.id()) ? "lag.action.on" : "lag.action.off"));
             }
 
@@ -68,6 +73,11 @@ public final class LagModule implements LetsTrollModule {
 
             @Override
             public void run(ClickContext click, PlayerRef target) {
+                if (click.kind() == ClickKind.SHIFT_RIGHT) {
+                    click.input(Text.get(click.viewer(), "lag.delay.prompt"), "",
+                            value -> applyDelay(click, target, value));
+                    return;
+                }
                 if (click.kind().isRight()) {
                     int next = config.strength() + 1;
                     if (next > 10) {
@@ -76,10 +86,7 @@ public final class LagModule implements LetsTrollModule {
                     config.setStrength(next);
                     click.core().saveConfig();
                     Text.send(click.viewer(), "lag.power", next);
-                    if (service.isLagging(target.id())) {
-                        service.start(target, config.strength(), config.durationTicks());
-                        click.core().platform().ping().setFake(target, fakePing(config.strength()));
-                    }
+                    restart(click, target);
                     click.refresh();
                     return;
                 }
@@ -89,7 +96,7 @@ public final class LagModule implements LetsTrollModule {
                     Text.send(click.viewer(), "lag.stopped", target.name());
                 } else {
                     service.start(target, config.strength(), config.durationTicks());
-                    click.core().platform().ping().setFake(target, fakePing(config.strength()));
+                    click.core().platform().ping().setFake(target, (int) config.delayMillis());
                     click.core().stats().record(target.id(), "lag");
                     Text.send(click.viewer(), "lag.started", target.name(), config.strength());
                 }
@@ -98,8 +105,25 @@ public final class LagModule implements LetsTrollModule {
         });
     }
 
-    private int fakePing(int strength) {
-        return 250 + strength * 180;
+    private void restart(ClickContext click, PlayerRef target) {
+        if (!service.isLagging(target.id())) {
+            return;
+        }
+        service.start(target, config.strength(), config.durationTicks());
+        click.core().platform().ping().setFake(target, (int) config.delayMillis());
+    }
+
+    private void applyDelay(ClickContext click, PlayerRef target, String value) {
+        java.util.OptionalLong parsed = DurationText.parseMillis(value);
+        if (parsed.isEmpty()) {
+            Text.send(click.viewer(), "lag.delay.bad");
+        } else {
+            config.setDelayMillis(parsed.getAsLong());
+            click.core().saveConfig();
+            Text.send(click.viewer(), "lag.delay.set", DurationText.format(config.delayMillis()));
+            restart(click, target);
+        }
+        click.open(ScreenRequest.of("player", "target", target.id().toString()));
     }
 
     @Override

@@ -12,6 +12,8 @@ import dev.delewer.letstroll.menu.Screen;
 import dev.delewer.letstroll.platform.MenuSound;
 import dev.delewer.letstroll.menu.ScreenContext;
 import dev.delewer.letstroll.platform.PlayerRef;
+import dev.delewer.letstroll.menu.ScreenRequest;
+import dev.delewer.letstroll.text.DurationText;
 import dev.delewer.letstroll.text.Text;
 
 public final class EventsScreen implements Screen {
@@ -58,9 +60,16 @@ public final class EventsScreen implements Screen {
                 .build());
 
         builder.button(MenuLayout.serviceSlot(rows, 3), MenuButton.of(MenuIcon.of("minecraft:clock"))
-                .name(Text.get(viewer, "events.interval", trim(config.intervalMinutes())))
-                .lore(Text.get(viewer, "events.interval.adjust"))
+                .name(Text.get(viewer, "events.interval",
+                        DurationText.format(DurationText.fromTicks(config.intervalTicks()))))
+                .lore(Text.get(viewer, "events.interval.adjust"),
+                        Text.get(viewer, "events.interval.type"))
                 .onClick(click -> {
+                    if (click.kind().isRight()) {
+                        click.input(Text.get(viewer, "events.interval.prompt"), "",
+                                value -> applyInterval(click, value));
+                        return;
+                    }
                     double next = Math.floor(config.intervalMinutes()) + 1;
                     if (next > 30) {
                         next = 1;
@@ -119,6 +128,20 @@ public final class EventsScreen implements Screen {
         }
 
         return builder.button(MenuLayout.serviceSlot(rows, 4), Buttons.back(core, viewer)).build();
+    }
+
+    private void applyInterval(dev.delewer.letstroll.menu.ClickContext click, String value) {
+        java.util.OptionalLong parsed = DurationText.parseMillis(value);
+        if (parsed.isEmpty() || parsed.getAsLong() < 1000L) {
+            Text.send(click.viewer(), "events.interval.bad");
+        } else {
+            config.setIntervalMinutes(parsed.getAsLong() / 60000.0);
+            save(click);
+            scheduler.start();
+            Text.send(click.viewer(), "events.interval.set",
+                    DurationText.format(DurationText.fromTicks(config.intervalTicks())));
+        }
+        click.open(ScreenRequest.of(ID));
     }
 
     private void save(dev.delewer.letstroll.menu.ClickContext click) {

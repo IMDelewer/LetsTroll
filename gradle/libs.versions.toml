@@ -4,6 +4,7 @@ paper = "1.21.11-R0.1-SNAPSHOT"
 shadow = "9.6.1"
 runpaper = "3.1.0"
 bstats = "3.2.1"
+netty = "4.1.115.Final"
 loom = "1.17.19"
 minecraft = "1.21.11"
 fabricloader = "0.19.3"
@@ -14,6 +15,7 @@ magicutils-bukkit = { module = "dev.ua.theroer:magicutils-bukkit-bundle", versio
 magicutils-fabric = { module = "dev.ua.theroer:magicutils-fabric-bundle", version.ref = "magicutils" }
 paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
 bstats-bukkit = { module = "org.bstats:bstats-bukkit", version.ref = "bstats" }
+netty-transport = { module = "io.netty:netty-transport", version.ref = "netty" }
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
 fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabricloader" }
 fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabricapi" }

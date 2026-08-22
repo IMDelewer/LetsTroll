@@ -9,6 +9,7 @@ dependencies {
     implementation(libs.magicutils.bukkit)
     implementation(libs.bstats.bukkit)
     compileOnly(libs.paper.api)
+    compileOnly(libs.netty.transport)
     annotationProcessor(project(":processor"))
 }
 
@@ -39,6 +40,7 @@ sourceSets.main {
 
 runPaper.folia.registerTask {
     minecraftVersion(libs.versions.minecraft.get())
+    runDirectory(file("run-folia"))
 }
 
 tasks {

@@ -75,7 +75,11 @@ public final class Lang {
         ENGLISH.put("player.actions.hint", "<gray>Add a module folder to get more actions");
         ENGLISH.put("events.toggle", "<green>Automatic events");
         ENGLISH.put("events.interval", "<green>Interval <gray>{0} min");
-        ENGLISH.put("events.interval.adjust", "<dark_gray>Click to change (1-30 min)");
+        ENGLISH.put("events.interval.adjust", "<dark_gray>Left click to step through 1-30 min");
+        ENGLISH.put("events.interval.type", "<dark_gray>Right click to type it: <white>5m 30s</white>");
+        ENGLISH.put("events.interval.prompt", "<gray>Type an interval, for example <white>90s</white>, <white>5m 30s</white> or <white>2h</white>");
+        ENGLISH.put("events.interval.bad", "<red>Could not read that. Try <white>90s</white>, <white>5m 30s</white> or <white>2h</white>.");
+        ENGLISH.put("events.interval.set", "<gray>Interval set to <white>{0}</white>.");
         ENGLISH.put("events.bossbar", "<green>Timer bar <gray>{0}");
         ENGLISH.put("events.bossbar.adjust", "<dark_gray>Click to cycle OFF / ADMINS / ALL");
         ENGLISH.put("events.fire-now", "<gold>Fire an event now");
@@ -182,6 +186,11 @@ public final class Lang {
         ENGLISH.put("lag.power", "<gray>Lag power set to <white>{0}</white>/10.");
         ENGLISH.put("lag.started", "<green>Fake lag (power {1}) started on <white>{0}</white>.");
         ENGLISH.put("lag.stopped", "<yellow>Fake lag stopped on <white>{0}</white>.");
+        ENGLISH.put("lag.delay.adjust", "<dark_gray>Shift-right click to type an exact delay");
+        ENGLISH.put("lag.delay.prompt", "<gray>Type a delay, for example <white>500ms</white> or <white>2s</white>");
+        ENGLISH.put("lag.delay.bad", "<red>Could not read that. Try <white>500ms</white>, <white>2s</white> or <white>1s 500ms</white>.");
+        ENGLISH.put("lag.delay.set", "<gray>Packet delay set to <white>{0}</white>.");
+        ENGLISH.put("lag.action.delay", "<gray>Delay: <white>{0}</white>");
     }
 
     private Lang() {
