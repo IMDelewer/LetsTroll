@@ -30,6 +30,8 @@ adapters, and everything is driven from a single `/troll` menu instead of `/tool
   commands from tab completion.
 - PlaceholderAPI support in menu and message text, so `%player_ping%` and friends resolve.
 - Publishing to Modrinth for both loaders from a `v*` tag, plus a GitHub release.
+- Folia support: every scheduled task runs on the region that owns the player or entity it
+  touches, and writes to player state hop to the owning region when called from elsewhere.
 
 ### Changed
 

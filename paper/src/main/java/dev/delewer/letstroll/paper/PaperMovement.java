@@ -9,9 +9,16 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
 public final class PaperMovement implements MovementService {
+
+    private final JavaPlugin plugin;
+
+    public PaperMovement(JavaPlugin plugin) {
+        this.plugin = plugin;
+    }
 
     @Override
     public Optional<Position> positionOf(PlayerRef player) {
@@ -34,14 +41,15 @@ public final class PaperMovement implements MovementService {
         if (world == null) {
             return;
         }
-        bukkit.teleport(new Location(world, position.x(), position.y(), position.z(), position.yaw(), position.pitch()));
+        bukkit.teleportAsync(new Location(world, position.x(), position.y(), position.z(), position.yaw(), position.pitch()));
     }
 
     @Override
     public void push(PlayerRef player, double x, double y, double z) {
         Player bukkit = (Player) player.handle();
         if (bukkit != null) {
-            bukkit.setVelocity(bukkit.getVelocity().add(new Vector(x, y, z)));
+            PaperTasks.withEntity(plugin, bukkit,
+                    () -> bukkit.setVelocity(bukkit.getVelocity().add(new Vector(x, y, z))));
         }
     }
 }

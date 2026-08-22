@@ -53,7 +53,7 @@ public final class PaperFakePlayers implements FakePlayerService {
             if (texture == null || texture.isEmpty()) {
                 return;
             }
-            Bukkit.getScheduler().runTask(plugin, () -> {
+            PaperTasks.onEntity(plugin, mannequin, () -> {
                 if (Bukkit.getEntity(entityId) instanceof Mannequin live) {
                     live.setProfile(texturedProfile(texture.get()));
                 }
@@ -90,7 +90,7 @@ public final class PaperFakePlayers implements FakePlayerService {
         }
 
         spawned.computeIfAbsent(target.id(), key -> new ArrayList<>()).add(mannequin.getUniqueId());
-        Bukkit.getScheduler().runTaskLater(plugin, () -> remove(target.id(), mannequin.getUniqueId()), spec.lifetimeTicks());
+        PaperTasks.onEntityLater(plugin, mannequin, () -> remove(target.id(), mannequin.getUniqueId()), spec.lifetimeTicks());
         return mannequin;
     }
 

@@ -14,7 +14,7 @@ import dev.delewer.letstroll.platform.PlayerRef;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 
 public final class PaperPing implements PingService {
 
@@ -30,7 +30,7 @@ public final class PaperPing implements PingService {
     private Constructor<?> packetConstructor;
     private Object updateLatencyAction;
 
-    private BukkitTask task;
+    private ScheduledTask task;
 
     public PaperPing(JavaPlugin plugin, dev.ua.theroer.magicutils.logger.PrefixedLogger log) {
         this.plugin = plugin;
@@ -114,7 +114,7 @@ public final class PaperPing implements PingService {
 
     private void ensureTask() {
         if (task == null) {
-            task = Bukkit.getScheduler().runTaskTimer(plugin, this::pushAll, 20L, 20L);
+            task = Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, ignored -> pushAll(), 20L, 20L);
         }
     }
 

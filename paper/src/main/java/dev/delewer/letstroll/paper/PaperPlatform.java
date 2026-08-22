@@ -52,12 +52,12 @@ public final class PaperPlatform implements TrollPlatform {
         this.sounds = sounds;
         this.input = input;
         this.fakePlayers = fakePlayers;
-        this.movement = new PaperMovement();
+        this.movement = new PaperMovement(plugin);
         this.ping = new PaperPing(plugin, logger.create("Ping"));
         this.effects = new PaperEffects(plugin, logger.create("Effects"));
         this.bossBars = new PaperBossBar();
         this.itemBindings = itemBindings;
-        this.chain = new PaperChain();
+        this.chain = new PaperChain(plugin);
         this.players = new PaperPlayers();
         this.scheduler = new PaperScheduler(plugin);
         this.placeholders = new dev.ua.theroer.magicutils.integrations.PlaceholderApiIntegration(plugin);

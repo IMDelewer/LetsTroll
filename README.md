@@ -14,7 +14,9 @@
 
 Everything starts from a single `/troll` menu with tabs for players, events, bindings and settings.
 
-The project is split into a platform independent core and thin platform adapters. Paper and Fabric run the same features today; Velocity can follow with another adapter.
+The project is split into a platform independent core and thin platform adapters. Paper, Purpur, Folia and Fabric run the same features today; Velocity can follow with another adapter.
+
+On Folia every scheduled task runs on the region that owns the player or entity it touches, so nothing crosses a region thread.
 
 ---
 

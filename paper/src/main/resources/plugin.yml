@@ -2,6 +2,7 @@ name: LetsTroll
 version: '${version}'
 main: dev.delewer.letstroll.paper.LetsTrollPlugin
 api-version: '1.21'
+folia-supported: true
 authors: [IMDelewer]
 description: Trolling toolkit driven by a single menu.
 website: https://modrinth.com/plugin/lets-troll

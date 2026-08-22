@@ -101,7 +101,7 @@ public final class PaperMenus implements MenuBackend, Listener {
         if (tracked == null) {
             return;
         }
-        Bukkit.getScheduler().runTask(plugin, () -> {
+        PaperTasks.onEntity(plugin, event.getPlayer(), () -> {
             Player player = Bukkit.getPlayer(id);
             OpenMenu still = open.get(id);
             if (player == null || still == null) {

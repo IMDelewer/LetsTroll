@@ -22,6 +22,7 @@ import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.util.Transformation;
 import org.joml.Quaternionf;
@@ -29,8 +30,13 @@ import org.joml.Vector3f;
 
 public final class PaperChain implements ChainOps {
 
+    private final JavaPlugin plugin;
     private final Map<String, List<BlockDisplay>> chains = new ConcurrentHashMap<>();
     private final Map<String, BlockData> blocks = new ConcurrentHashMap<>();
+
+    public PaperChain(JavaPlugin plugin) {
+        this.plugin = plugin;
+    }
 
     @Override
     public String inventoryHash(PlayerRef player) {
@@ -53,15 +59,19 @@ public final class PaperChain implements ChainOps {
         for (int index = 0; index < contents.length; index++) {
             copy[index] = contents[index] == null ? null : contents[index].clone();
         }
-        target.getInventory().setContents(copy);
-        target.getInventory().setHeldItemSlot(source.getInventory().getHeldItemSlot());
+        int heldSlot = source.getInventory().getHeldItemSlot();
+        PaperTasks.withEntity(plugin, target, () -> {
+            target.getInventory().setContents(copy);
+            target.getInventory().setHeldItemSlot(heldSlot);
+        });
     }
 
     @Override
     public void setHealth(PlayerRef player, double health) {
         Player bukkit = player(player);
         if (bukkit != null) {
-            bukkit.setHealth(Math.max(0.0, Math.min(bukkit.getAttribute(Attribute.MAX_HEALTH).getValue(), health)));
+            PaperTasks.withEntity(plugin, bukkit, () -> bukkit.setHealth(
+                    Math.max(0.0, Math.min(bukkit.getAttribute(Attribute.MAX_HEALTH).getValue(), health))));
         }
     }
 
@@ -76,8 +86,10 @@ public final class PaperChain implements ChainOps {
         Player bukkit = player(player);
         if (bukkit != null) {
             int clamped = Math.max(0, Math.min(20, food));
-            bukkit.setFoodLevel(clamped);
-            bukkit.setSaturation(Math.min(bukkit.getSaturation(), clamped));
+            PaperTasks.withEntity(plugin, bukkit, () -> {
+                bukkit.setFoodLevel(clamped);
+                bukkit.setSaturation(Math.min(bukkit.getSaturation(), clamped));
+            });
         }
     }
 
@@ -88,19 +100,23 @@ public final class PaperChain implements ChainOps {
         if (source == null || target == null) {
             return;
         }
-        for (PotionEffect effect : List.copyOf(target.getActivePotionEffects())) {
-            target.removePotionEffect(effect.getType());
-        }
-        for (PotionEffect effect : source.getActivePotionEffects()) {
-            target.addPotionEffect(effect);
-        }
+        List<PotionEffect> current = List.copyOf(target.getActivePotionEffects());
+        List<PotionEffect> wanted = List.copyOf(source.getActivePotionEffects());
+        PaperTasks.withEntity(plugin, target, () -> {
+            for (PotionEffect effect : current) {
+                target.removePotionEffect(effect.getType());
+            }
+            for (PotionEffect effect : wanted) {
+                target.addPotionEffect(effect);
+            }
+        });
     }
 
     @Override
     public void kill(PlayerRef player) {
         Player bukkit = player(player);
         if (bukkit != null) {
-            bukkit.setHealth(0.0);
+            PaperTasks.withEntity(plugin, bukkit, () -> bukkit.setHealth(0.0));
         }
     }
 
@@ -135,6 +151,12 @@ public final class PaperChain implements ChainOps {
             return;
         }
 
+        if (!Bukkit.isOwnedByCurrentRegion(new Location(world, points.get(0).x(), points.get(0).y(), points.get(0).z()))) {
+            Location anchor = new Location(world, points.get(0).x(), points.get(0).y(), points.get(0).z());
+            Bukkit.getRegionScheduler().run(plugin, anchor, ignored -> drawChainLinks(linkId, points, thickness, block));
+            return;
+        }
+
         List<BlockDisplay> links = chains.computeIfAbsent(linkId, key -> new ArrayList<>());
         int wanted = points.size() - 1;
         links.removeIf(display -> !display.isValid());
@@ -163,7 +185,7 @@ public final class PaperChain implements ChainOps {
         }
         links.forEach(display -> {
             if (display.isValid()) {
-                display.remove();
+                PaperTasks.withEntity(plugin, display, display::remove);
             }
         });
     }

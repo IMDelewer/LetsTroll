@@ -40,7 +40,7 @@ public final class PaperTextInput implements TextInputService, Listener {
         player.closeInventory();
         player.sendMessage(prompt);
         player.sendMessage(Component.text("Type it in chat, or write cancel."));
-        Bukkit.getScheduler().runTaskLater(plugin, () -> pending.remove(id, onConfirm), TIMEOUT_TICKS);
+        PaperTasks.asyncLater(plugin, () -> pending.remove(id, onConfirm), TIMEOUT_TICKS);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -54,7 +54,7 @@ public final class PaperTextInput implements TextInputService, Listener {
         if (text.equalsIgnoreCase("cancel")) {
             return;
         }
-        Bukkit.getScheduler().runTask(plugin, () -> callback.accept(text));
+        PaperTasks.onEntity(plugin, event.getPlayer(), () -> callback.accept(text));
     }
 
     @EventHandler

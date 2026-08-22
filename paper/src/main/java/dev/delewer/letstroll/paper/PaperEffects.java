@@ -140,7 +140,7 @@ public final class PaperEffects implements EffectsService {
         double dz = (ThreadLocalRandom.current().nextDouble() * 2 - 1) * radius;
         Location spot = player.getLocation().clone().add(dx, 0, dz);
         spot.setY(player.getWorld().getHighestBlockYAt(spot) + 1);
-        player.teleport(spot);
+        player.teleportAsync(spot);
     }
 
     @Override
@@ -148,7 +148,7 @@ public final class PaperEffects implements EffectsService {
         Player player = player(target);
         Player to = player(destination);
         if (player != null && to != null) {
-            player.teleport(to.getLocation());
+            player.teleportAsync(to.getLocation());
         }
     }
 
@@ -225,7 +225,7 @@ public final class PaperEffects implements EffectsService {
         player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, ticks, 6, false, false, false));
         player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, ticks, 128, false, false, false));
         UUID id = player.getUniqueId();
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+        PaperTasks.onEntityLater(plugin, player, () -> {
             Player online = Bukkit.getPlayer(id);
             if (online != null) {
                 online.setWalkSpeed(walk == 0f ? 0.2f : walk);
@@ -241,7 +241,7 @@ public final class PaperEffects implements EffectsService {
         }
         UUID id = player.getUniqueId();
         int[] elapsed = {0};
-        Bukkit.getScheduler().runTaskTimer(plugin, task -> {
+        player.getScheduler().runAtFixedRate(plugin, task -> {
             Player online = Bukkit.getPlayer(id);
             if (online == null || elapsed[0] >= ticks) {
                 task.cancel();
@@ -252,7 +252,7 @@ public final class PaperEffects implements EffectsService {
             location.setPitch((float) (Math.sin(elapsed[0]) * 25));
             online.setRotation(location.getYaw(), location.getPitch());
             elapsed[0] += 2;
-        }, 0L, 2L);
+        }, null, 1L, 2L);
     }
 
     @Override
@@ -297,7 +297,7 @@ public final class PaperEffects implements EffectsService {
         world.setStorm(true);
         world.setThundering(true);
         world.setTime(18000);
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+        PaperTasks.globalLater(plugin, () -> {
             world.setStorm(false);
             world.setThundering(false);
             world.setTime(previousTime);
@@ -313,7 +313,7 @@ public final class PaperEffects implements EffectsService {
         Team team = hiddenTeam();
         team.addEntry(player.getName());
         String name = player.getName();
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+        PaperTasks.globalLater(plugin, () -> {
             Team current = Bukkit.getScoreboardManager().getMainScoreboard().getTeam("lt_hidden");
             if (current != null) {
                 current.removeEntry(name);
@@ -342,7 +342,7 @@ public final class PaperEffects implements EffectsService {
             removeAll.invoke(properties, "textures");
             refreshEntity(player);
 
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            PaperTasks.onEntityLater(plugin, player, () -> {
                 Player online = Bukkit.getPlayer(id);
                 if (online == null) {
                     return;
@@ -371,7 +371,7 @@ public final class PaperEffects implements EffectsService {
             }
         }
         UUID id = target.getUniqueId();
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+        PaperTasks.globalLater(plugin, () -> {
             Player online = Bukkit.getPlayer(id);
             if (online == null) {
                 return;
