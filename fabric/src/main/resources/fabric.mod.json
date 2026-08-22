@@ -5,6 +5,11 @@
   "name": "Let's Troll",
   "description": "GUI-first trolling toolkit.",
   "authors": ["IMDelewer"],
+  "contact": {
+    "homepage": "https://modrinth.com/plugin/lets-troll",
+    "sources": "https://github.com/IMDelewer/LetsTroll",
+    "issues": "https://github.com/IMDelewer/LetsTroll/issues"
+  },
   "license": "MIT",
   "environment": "*",
   "entrypoints": {

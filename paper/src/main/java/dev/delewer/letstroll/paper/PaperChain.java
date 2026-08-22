@@ -12,6 +12,7 @@ import dev.delewer.letstroll.platform.ChainOps;
 import dev.delewer.letstroll.platform.PlayerRef;
 import dev.delewer.letstroll.platform.Position;
 import org.bukkit.Bukkit;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -60,7 +61,7 @@ public final class PaperChain implements ChainOps {
     public void setHealth(PlayerRef player, double health) {
         Player bukkit = player(player);
         if (bukkit != null) {
-            bukkit.setHealth(Math.max(0.0, Math.min(bukkit.getMaxHealth(), health)));
+            bukkit.setHealth(Math.max(0.0, Math.min(bukkit.getAttribute(Attribute.MAX_HEALTH).getValue(), health)));
         }
     }
 

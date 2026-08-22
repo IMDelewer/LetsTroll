@@ -200,7 +200,7 @@ public final class PaperMenus implements MenuBackend, Listener {
         } else if (icon.head() != null) {
             skull.setOwningPlayer(Bukkit.getOfflinePlayer(icon.head()));
         } else {
-            skull.setOwnerProfile(Bukkit.createPlayerProfile(icon.headOwner()));
+            skull.setPlayerProfile(Bukkit.createProfile(icon.headOwner()));
         }
         stack.setItemMeta(skull);
     }
