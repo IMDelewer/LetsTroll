@@ -67,7 +67,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # A new loader is one entry here plus its Gradle module and build.yml upload.
+        # A new loader is one entry here plus its Gradle module and an upload step above.
         include:
           - artifact: LetsTroll-paper
             loaders: |

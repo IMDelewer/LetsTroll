@@ -11,7 +11,8 @@ Java 21 and nothing else — the Gradle wrapper pulls the rest.
 ```
 
 That compiles both loaders and runs the tests. A green build is the bar for any pull
-request. To try changes on a real server:
+request — run it yourself before opening one, since nothing checks it automatically. To try
+changes on a real server:
 
 ```
 ./gradlew :paper:runServer

@@ -4,14 +4,13 @@
 
 <p align="center">
   <a href="https://modrinth.com/plugin/lets-troll/versions"><img src="https://img.shields.io/modrinth/dt/lets-troll?style=for-the-badge&logo=modrinth&logoColor=white&color=00AF5C" alt="Downloads"></a>
-  <a href="../../actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/IMDelewer/LetsTroll/build.yml?style=for-the-badge&logo=githubactions&logoColor=white" alt="Build"></a>
   <img src="https://img.shields.io/badge/Minecraft-1.21.11-62B47A?style=for-the-badge&logo=minecraft&logoColor=white" alt="Minecraft">
   <a href="../../stargazers"><img src="https://img.shields.io/github/stars/IMDelewer/LetsTroll?style=for-the-badge&logo=github&logoColor=white" alt="Stars"></a>
 </p>
 
 ---
 
-### Grab it from [Modrinth](https://modrinth.com/plugin/lets-troll/version) or [GitHub Releases](https://github.com/IMDelewer/LetsTroll/releases/latest).
+### Grab it from [Modrinth](https://modrinth.com/plugin/lets-troll/versions) or [GitHub Releases](https://github.com/IMDelewer/LetsTroll/releases/latest).
 
 Everything starts from a single `/troll` menu with tabs for players, events, bindings and settings.
 
