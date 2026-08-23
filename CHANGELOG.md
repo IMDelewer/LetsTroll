@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0]
+
+### Added
+
+- Folia support. Every scheduled task runs on the region that owns the player or entity it
+  touches, and writes to player state hop to the owning region when called from elsewhere,
+  so nothing crosses a region thread. `./gradlew :paper:runFolia` starts a Folia test server.
+- Real lag for the `lag` module: the victim's outgoing packets are held back in the network
+  pipeline instead of only yanking them around, so blocks, mobs and chat all stall together.
+  Falls back to the old rubberband if the server internals don't match.
+- `dangerous` switch for the lag module, which drops the delay cap and holds keep-alive
+  packets too — hard enough settings will time the victim out.
+- Durations can be typed instead of cycled: `90s`, `5m 30s`, `2h`, `1d`. Right click the
+  event interval, shift-right click the lag action.
+
+### Changed
+
+- Fake players resolve their skin before spawning, so the mannequin never appears with the
+  wrong skin for a moment. Repeated presets are instant thanks to a skin cache.
+- Fake ping now reports the real packet delay rather than a made-up number.
+
+### Fixed
+
+- Fake lag no longer restores the victim's old camera angle when yanking them back, which
+  made the view feel stuck in place.
+- `folia` was listed as a published loader before the plugin actually supported it.
+
 ## [2.0.0]
 
 A full rewrite. The plugin is now a platform independent core with thin Paper and Fabric
