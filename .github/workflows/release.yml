@@ -96,6 +96,9 @@ jobs:
           loaders: ${{ matrix.loaders }}
           game-versions: ${{ needs.build.outputs.minecraft }}
           java: 21
+          # Unfeaturing older versions needs a token that may edit versions;
+          # the release token is only allowed to create them.
+          modrinth-unfeature-mode: none
 
   github-release:
     needs: [build, modrinth]
