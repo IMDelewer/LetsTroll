@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.0]
+
+### Added
+
+- Ghost mode swallows the ghost's own chat and private-message commands (`/msg`, `/tell`,
+  `/w`, `/r`, `/me`, `/say` and their aliases), so a hidden admin cannot give themselves
+  away by typing. Start the message with `!` to send it anyway: `!hello` in chat, or
+  `/msg Steve !hello`. Controlled by `mute-chat` in the ghost config. Chat prompts used by
+  the menu — player search, mannequin presets, typed durations — keep working untouched.
+
+### Changed
+
+- Fake lag reports a moving ping instead of a flat number. The value drifts around the
+  configured delay and refreshes on an irregular beat, so the tab list looks like a real
+  bad connection rather than a constant reading.
+
+### Fixed
+
+- The fake ping is now cleared when the lag session ends, when the victim quits and after
+  the `fake_lag` event, instead of sticking to the player for the rest of the server's life.
+- Fabric no longer throws on every online player while the server shuts down.
+- Config toggles are no longer discarded when a config section is missing from the file.
+- Mannequin lists and chain links use thread-safe collections, so async skin callbacks and
+  Folia region threads can no longer corrupt them.
+- The skin cache and the menu history are bounded instead of growing for the server's life.
+
 ## [2.1.0]
 
 ### Added
