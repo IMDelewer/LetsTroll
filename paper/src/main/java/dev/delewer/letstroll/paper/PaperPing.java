@@ -30,7 +30,7 @@ public final class PaperPing implements PingService {
     private Constructor<?> packetConstructor;
     private Object updateLatencyAction;
 
-    private ScheduledTask task;
+    private volatile ScheduledTask task;
 
     public PaperPing(JavaPlugin plugin, dev.ua.theroer.magicutils.logger.PrefixedLogger log) {
         this.plugin = plugin;
@@ -98,6 +98,12 @@ public final class PaperPing implements PingService {
         return fakes.containsKey(id);
     }
 
+    public void forget(UUID id) {
+        fakes.remove(id);
+        originals.remove(id);
+        stopTaskIfIdle();
+    }
+
     @Override
     public void clearAll() {
         for (UUID id : Map.copyOf(fakes).keySet()) {
@@ -112,13 +118,13 @@ public final class PaperPing implements PingService {
         stopTaskIfIdle();
     }
 
-    private void ensureTask() {
+    private synchronized void ensureTask() {
         if (task == null) {
             task = Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, ignored -> pushAll(), 20L, 20L);
         }
     }
 
-    private void stopTaskIfIdle() {
+    private synchronized void stopTaskIfIdle() {
         if (fakes.isEmpty() && task != null) {
             task.cancel();
             task = null;

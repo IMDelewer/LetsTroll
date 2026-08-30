@@ -44,6 +44,7 @@ public final class EventLibrary {
                 event("fake_lag", false, true, TrollEvent.TargetMode.ALL, context -> {
                     for (PlayerRef target : context.targets()) {
                         context.platform().ping().setFake(target, 900 + ThreadLocalRandom.current().nextInt(400));
+                        context.platform().scheduler().later(() -> context.platform().ping().clear(target), 200L);
                     }
                 }),
 

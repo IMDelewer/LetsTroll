@@ -157,6 +157,9 @@ public final class LetsTrollPlugin extends JavaPlugin implements Listener {
         if (menus != null) {
             menus.forget(event.getPlayer().getUniqueId());
         }
+        if (platformRef != null) {
+            platformRef.pingService().forget(event.getPlayer().getUniqueId());
+        }
     }
 
     private void selectLanguage(LanguageManager languages, String language) {
