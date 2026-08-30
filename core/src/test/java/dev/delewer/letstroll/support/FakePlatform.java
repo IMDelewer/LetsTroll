@@ -269,30 +269,38 @@ public final class FakePlatform implements TrollPlatform {
     }
 
     private final java.util.Set<UUID> fakedPings = new java.util.HashSet<>();
+    private final List<Integer> pingValues = new ArrayList<>();
+
+    private final PingService pingService = new PingService() {
+        @Override
+        public void setFake(PlayerRef target, int milliseconds) {
+            fakedPings.add(target.id());
+            pingValues.add(milliseconds);
+        }
+
+        @Override
+        public void clear(PlayerRef target) {
+            fakedPings.remove(target.id());
+        }
+
+        @Override
+        public boolean isFaked(UUID id) {
+            return fakedPings.contains(id);
+        }
+
+        @Override
+        public void clearAll() {
+            fakedPings.clear();
+        }
+    };
+
+    public List<Integer> pingValues() {
+        return pingValues;
+    }
 
     @Override
     public PingService ping() {
-        return new PingService() {
-            @Override
-            public void setFake(PlayerRef target, int milliseconds) {
-                fakedPings.add(target.id());
-            }
-
-            @Override
-            public void clear(PlayerRef target) {
-                fakedPings.remove(target.id());
-            }
-
-            @Override
-            public boolean isFaked(UUID id) {
-                return fakedPings.contains(id);
-            }
-
-            @Override
-            public void clearAll() {
-                fakedPings.clear();
-            }
-        };
+        return pingService;
     }
 
     @Override

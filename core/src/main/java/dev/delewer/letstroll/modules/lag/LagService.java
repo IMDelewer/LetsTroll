@@ -16,6 +16,10 @@ import dev.delewer.letstroll.platform.TrollPlatform;
 public final class LagService {
 
     private static final int HISTORY_CAP = 50;
+    private static final int PING_MIN_TICKS = 14;
+    private static final int PING_SPREAD_TICKS = 50;
+    private static final double PING_FLOOR = 0.55;
+    private static final double PING_CEILING = 1.12;
 
     private final TrollPlatform platform;
     private final LagConfig config;
@@ -34,9 +38,14 @@ public final class LagService {
         stop(target.id());
         boolean held = config.holdPackets()
                 && platform.holdPackets(target, config.delayMillis(), config.dangerous());
-        Session session = new Session(target, Math.max(1, Math.min(10, strength)), durationTicks, held);
-        session.task = platform.scheduler().repeating(session::tick, 1L);
+        Session session = new Session(target, Math.max(1, Math.min(10, strength)), durationTicks, held,
+                config.delayMillis());
         sessions.put(target.id(), session);
+        session.pushPing();
+        session.task = platform.scheduler().repeating(session::tick, 1L);
+        if (!sessions.containsKey(target.id())) {
+            session.task.cancel();
+        }
     }
 
     public boolean holdsPackets(UUID id) {
@@ -55,6 +64,7 @@ public final class LagService {
         if (session.held) {
             platform.releasePackets(session.target);
         }
+        platform.ping().clear(session.target);
     }
 
     public void stopAll() {
@@ -71,18 +81,27 @@ public final class LagService {
         private final int minBack;
         private final int maxBack;
         private final boolean held;
+        private final long pingBase;
         private long remaining;
         private int cooldown;
+        private int pingCountdown;
         private TaskScheduler.Cancellable task;
 
-        private Session(PlayerRef target, int strength, long durationTicks, boolean held) {
+        private Session(PlayerRef target, int strength, long durationTicks, boolean held, long pingBase) {
             this.target = target;
             this.held = held;
+            this.pingBase = Math.max(1L, pingBase);
             double spikesPerSecond = (held ? 0.12 : 0.4) + (strength - 1) * (held ? 0.06 : 0.4);
             this.chancePerTick = spikesPerSecond / 20.0;
             this.minBack = 3 + strength;
             this.maxBack = 6 + strength * 3;
             this.remaining = durationTicks <= 0 ? Long.MAX_VALUE : durationTicks;
+        }
+
+        private void pushPing() {
+            double factor = ThreadLocalRandom.current().nextDouble(PING_FLOOR, PING_CEILING);
+            platform.ping().setFake(target, (int) Math.max(1L, Math.round(pingBase * factor)));
+            pingCountdown = PING_MIN_TICKS + ThreadLocalRandom.current().nextInt(PING_SPREAD_TICKS);
         }
 
         private void tick() {
@@ -96,6 +115,10 @@ public final class LagService {
             history.add(0, now);
             while (history.size() > HISTORY_CAP) {
                 history.remove(history.size() - 1);
+            }
+
+            if (--pingCountdown <= 0) {
+                pushPing();
             }
 
             if (--remaining <= 0) {

@@ -92,11 +92,9 @@ public final class LagModule implements LetsTrollModule {
                 }
                 if (service.isLagging(target.id())) {
                     service.stop(target.id());
-                    click.core().platform().ping().clear(target);
                     Text.send(click.viewer(), "lag.stopped", target.name());
                 } else {
                     service.start(target, config.strength(), config.durationTicks());
-                    click.core().platform().ping().setFake(target, (int) config.delayMillis());
                     click.core().stats().record(target.id(), "lag");
                     Text.send(click.viewer(), "lag.started", target.name(), config.strength());
                 }
@@ -110,7 +108,6 @@ public final class LagModule implements LetsTrollModule {
             return;
         }
         service.start(target, config.strength(), config.durationTicks());
-        click.core().platform().ping().setFake(target, (int) config.delayMillis());
     }
 
     private void applyDelay(ClickContext click, PlayerRef target, String value) {

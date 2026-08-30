@@ -8,6 +8,7 @@ import java.nio.file.Path;
 
 import dev.delewer.letstroll.modules.lag.LagConfig;
 import dev.delewer.letstroll.modules.lag.LagService;
+import dev.delewer.letstroll.platform.Position;
 import dev.delewer.letstroll.support.FakePlatform;
 import dev.delewer.letstroll.support.FakePlayer;
 import org.junit.jupiter.api.BeforeEach;
@@ -76,6 +77,33 @@ class LagServiceTest {
 
         assertFalse(service.holdsPackets(victim.id()));
         assertTrue(platform.heldPackets().isEmpty());
+    }
+
+    @Test
+    void fakesAJitteredPingInsteadOfAFlatValue() {
+        config.setDelayMillis(1000L);
+        platform.movement().teleport(victim, new Position("world", 0, 64, 0, 0f, 0f));
+        service.start(victim, 5, 0L);
+
+        for (int tick = 0; tick < 400; tick++) {
+            java.util.List.copyOf(platform.repeatingTasks()).forEach(Runnable::run);
+        }
+
+        java.util.List<Integer> values = platform.pingValues();
+        assertTrue(values.size() > 3, "expected several ping updates, got " + values.size());
+        assertTrue(values.size() < 200, "ping should not be pushed every tick, got " + values.size());
+        assertTrue(java.util.Set.copyOf(values).size() > 1, "ping should vary, got " + values);
+        assertTrue(values.stream().allMatch(value -> value >= 550 && value <= 1120),
+                "ping should stay around the configured delay, got " + values);
+    }
+
+    @Test
+    void stopClearsTheFakePing() {
+        service.start(victim, 5, 0L);
+        assertTrue(platform.ping().isFaked(victim.id()));
+
+        service.stop(victim.id());
+        assertFalse(platform.ping().isFaked(victim.id()));
     }
 
     @Test
