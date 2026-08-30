@@ -30,7 +30,10 @@ public final class CoreConfig {
     private ModuleSettings modules = new ModuleSettings();
 
     public ModuleSettings modules() {
-        return modules == null ? new ModuleSettings() : modules;
+        if (modules == null) {
+            modules = new ModuleSettings();
+        }
+        return modules;
     }
 
     public String language() {
@@ -38,11 +41,17 @@ public final class CoreConfig {
     }
 
     public MenuSettings menu() {
-        return menu == null ? new MenuSettings() : menu;
+        if (menu == null) {
+            menu = new MenuSettings();
+        }
+        return menu;
     }
 
     public HideSettings hide() {
-        return hide == null ? new HideSettings() : hide;
+        if (hide == null) {
+            hide = new HideSettings();
+        }
+        return hide;
     }
 
     public List<String> disabledModules() {

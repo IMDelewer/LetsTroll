@@ -49,6 +49,9 @@ public final class MenuSettings {
     }
 
     public SoundSettings sounds() {
-        return sounds == null ? new SoundSettings() : sounds;
+        if (sounds == null) {
+            sounds = new SoundSettings();
+        }
+        return sounds;
     }
 }
