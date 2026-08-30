@@ -32,7 +32,23 @@ jobs:
 
       - uses: gradle/actions/wrapper-validation@v4
 
+      # Tag builds are not on the default branch, where setup-gradle would default to
+      # read-only, so the dependency cache would never be written for a release.
       - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
+
+      # setup-gradle only caches the paths it knows; Loom keeps the Minecraft jars,
+      # mappings and remapped dependencies outside them, and they dominate a cold build.
+      - name: Cache Loom artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches/fabric-loom
+            fabric/.gradle/loom-cache
+          key: loom-${{ runner.os }}-${{ hashFiles('gradle/libs.versions.toml', 'fabric/build.gradle.kts') }}
+          restore-keys: |
+            loom-${{ runner.os }}-
 
       - name: Resolve version and Minecraft target
         id: meta
