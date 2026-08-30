@@ -43,6 +43,9 @@ public final class FakePlatform implements TrollPlatform {
     private final List<MenuSound> sounds = new ArrayList<>();
     private final Map<UUID, List<FakePlayerSpec>> fakes = new LinkedHashMap<>();
     private String inputAnswer = "";
+    private final List<Runnable> repeatingTasks = new ArrayList<>();
+    private final List<PlayerRef> heldPackets = new ArrayList<>();
+    private boolean packetHoldSupported;
 
     public FakePlatform(Path dataFolder) {
         this.dataFolder = dataFolder;
@@ -74,6 +77,32 @@ public final class FakePlatform implements TrollPlatform {
 
     public void answerInputWith(String value) {
         this.inputAnswer = value;
+    }
+
+    public List<Runnable> repeatingTasks() {
+        return repeatingTasks;
+    }
+
+    public void supportPacketHold(boolean value) {
+        this.packetHoldSupported = value;
+    }
+
+    public List<PlayerRef> heldPackets() {
+        return heldPackets;
+    }
+
+    @Override
+    public boolean holdPackets(PlayerRef target, long delayMillis, boolean dangerous) {
+        if (!packetHoldSupported) {
+            return false;
+        }
+        heldPackets.add(target);
+        return true;
+    }
+
+    @Override
+    public void releasePackets(PlayerRef target) {
+        heldPackets.remove(target);
     }
 
     @Override
@@ -183,8 +212,8 @@ public final class FakePlatform implements TrollPlatform {
 
             @Override
             public Cancellable repeating(Runnable task, long intervalTicks) {
-                return () -> {
-                };
+                repeatingTasks.add(task);
+                return () -> repeatingTasks.remove(task);
             }
         };
     }
