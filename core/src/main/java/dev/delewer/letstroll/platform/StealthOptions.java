@@ -5,6 +5,7 @@ public record StealthOptions(boolean creative,
                              boolean hideFromTab,
                              boolean silentJoinQuit,
                              boolean hideChat,
+                             boolean muteChat,
                              boolean hideFromList,
                              boolean ignoreWorld,
                              boolean invulnerable,
@@ -13,6 +14,6 @@ public record StealthOptions(boolean creative,
                              boolean noclipOnSprint) {
 
     public static StealthOptions full() {
-        return new StealthOptions(true, true, true, true, true, true, true, true, true, true, true);
+        return new StealthOptions(true, true, true, true, true, true, true, true, true, true, true, true);
     }
 }

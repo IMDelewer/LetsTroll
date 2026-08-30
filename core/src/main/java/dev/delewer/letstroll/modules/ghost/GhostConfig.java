@@ -21,6 +21,10 @@ public final class GhostConfig {
     @ConfigValue("hide-chat")
     private boolean hideChat = true;
 
+    @Comment("Swallow the ghost's own chat messages and private-message commands so nothing reaches other players")
+    @ConfigValue("mute-chat")
+    private boolean muteChat = true;
+
     @ConfigValue("hide-from-list")
     private boolean hideFromList = true;
 
@@ -48,7 +52,7 @@ public final class GhostConfig {
     }
 
     public StealthOptions options() {
-        return new StealthOptions(creative, hideEntity, hideFromTab, silentJoinQuit, hideChat,
+        return new StealthOptions(creative, hideEntity, hideFromTab, silentJoinQuit, hideChat, muteChat,
                 hideFromList, ignoreWorld, invulnerable, mobsIgnore, noHunger, noclipOnSprint);
     }
 }

@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import dev.delewer.letstroll.platform.StealthOptions;
+import dev.delewer.letstroll.text.Text;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -33,6 +34,8 @@ import org.bukkit.event.block.Action;
 public final class StealthListener implements Listener {
 
     private static final List<String> LIST_COMMANDS = List.of("/list", "/who", "/playerlist", "/plist");
+    private static final Set<String> MESSAGE_COMMANDS = Set.of(
+            "msg", "tell", "w", "whisper", "pm", "m", "t", "r", "reply", "me", "say", "teammsg", "tm");
 
     private final PaperStealth stealth;
 
@@ -60,15 +63,40 @@ public final class StealthListener implements Listener {
         stealth.handleQuit(event.getPlayer().getUniqueId());
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onChat(AsyncChatEvent event) {
-        options(event.getPlayer().getUniqueId())
-                .filter(StealthOptions::hideChat)
-                .ifPresent(options -> {
-                    UUID speaker = event.getPlayer().getUniqueId();
-                    event.viewers().removeIf(audience -> audience instanceof Player player
-                            && !player.getUniqueId().equals(speaker));
-                });
+        StealthOptions options = options(event.getPlayer().getUniqueId()).orElse(null);
+        if (options == null) {
+            return;
+        }
+        if (options.muteChat()) {
+            event.setCancelled(true);
+            Text.send(new PaperPlayerRef(event.getPlayer()), "ghost.muted");
+            return;
+        }
+        if (options.hideChat()) {
+            UUID speaker = event.getPlayer().getUniqueId();
+            event.viewers().removeIf(audience -> audience instanceof Player player
+                    && !player.getUniqueId().equals(speaker));
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onMessageCommand(PlayerCommandPreprocessEvent event) {
+        if (options(event.getPlayer().getUniqueId()).filter(StealthOptions::muteChat).isEmpty()) {
+            return;
+        }
+        if (!MESSAGE_COMMANDS.contains(label(event.getMessage()))) {
+            return;
+        }
+        event.setCancelled(true);
+        Text.send(new PaperPlayerRef(event.getPlayer()), "ghost.muted");
+    }
+
+    private String label(String message) {
+        String command = message.substring(1).trim().split("\\s+")[0].toLowerCase(Locale.ROOT);
+        int colon = command.indexOf(':');
+        return colon < 0 ? command : command.substring(colon + 1);
     }
 
     @EventHandler(priority = EventPriority.HIGH)

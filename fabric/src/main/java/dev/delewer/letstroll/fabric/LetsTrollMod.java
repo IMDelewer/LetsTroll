@@ -106,8 +106,15 @@ public final class LetsTrollMod implements ModInitializer {
             input.forget(player.getUuid());
         });
 
-        ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, sender, params) ->
-                !input.consume(sender.getUuid(), message.getSignedContent()));
+        ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, sender, params) -> {
+            if (input.consume(sender.getUuid(), message.getSignedContent())) {
+                return false;
+            }
+            return !muted(stealth, sender.getUuid());
+        });
+
+        ServerMessageEvents.ALLOW_COMMAND_MESSAGE.register((message, source, params) ->
+                source.getPlayer() == null || !muted(stealth, source.getPlayer().getUuid()));
 
         UseEntityCallback.EVENT.register((player, world, hand, entity, hit) ->
                 onInteract(server, player, world.isClient(), hand, entity));
@@ -119,6 +126,11 @@ public final class LetsTrollMod implements ModInitializer {
         });
 
         magic.logger().success("Loaded %d modules", core.modules().count());
+    }
+
+    private boolean muted(FabricStealth stealth, java.util.UUID id) {
+        StealthOptions options = stealth.optionsOf(id);
+        return options != null && options.muteChat();
     }
 
     private ActionResult onInteract(Supplier<MinecraftServer> server, PlayerEntity player, boolean client,
