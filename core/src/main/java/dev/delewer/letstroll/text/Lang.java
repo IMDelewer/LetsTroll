@@ -159,7 +159,7 @@ public final class Lang {
         ENGLISH.put("ghost.disabled.self", "<yellow>Ghost mode disabled. You are visible again.");
         ENGLISH.put("ghost.enabled.other", "<green>Ghost mode enabled for <white>{0}</white>.");
         ENGLISH.put("ghost.disabled.other", "<yellow>Ghost mode disabled for <white>{0}</white>.");
-        ENGLISH.put("ghost.muted", "<gray>Ghost mode swallowed that, nobody heard you.");
+        ENGLISH.put("ghost.muted", "<gray>Ghost mode swallowed that. Start with <white>!</white> to send it anyway.");
         ENGLISH.put("ghost.usage", "<gray>Usage: <white>/ghost [on|off|<player>] [on|off]");
         ENGLISH.put("mannequin.title", "<dark_gray>Fake player");
         ENGLISH.put("mannequin.action.name", "<gold>Fake player");

@@ -1,5 +1,6 @@
 package dev.delewer.letstroll.paper;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -13,6 +14,7 @@ import dev.delewer.letstroll.text.Text;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -36,6 +38,9 @@ public final class StealthListener implements Listener {
     private static final List<String> LIST_COMMANDS = List.of("/list", "/who", "/playerlist", "/plist");
     private static final Set<String> MESSAGE_COMMANDS = Set.of(
             "msg", "tell", "w", "whisper", "pm", "m", "t", "r", "reply", "me", "say", "teammsg", "tm");
+    private static final Set<String> TARGETED_COMMANDS = Set.of(
+            "msg", "tell", "w", "whisper", "pm", "m", "t");
+    private static final String OVERRIDE = "!";
 
     private final PaperStealth stealth;
 
@@ -70,8 +75,14 @@ public final class StealthListener implements Listener {
             return;
         }
         if (options.muteChat()) {
-            event.setCancelled(true);
-            Text.send(new PaperPlayerRef(event.getPlayer()), "ghost.muted");
+            String text = PlainTextComponentSerializer.plainText().serialize(event.message());
+            String forced = text.startsWith(OVERRIDE) ? text.substring(OVERRIDE.length()).trim() : "";
+            if (forced.isEmpty()) {
+                event.setCancelled(true);
+                Text.send(new PaperPlayerRef(event.getPlayer()), "ghost.muted");
+                return;
+            }
+            event.message(Component.text(forced));
             return;
         }
         if (options.hideChat()) {
@@ -86,15 +97,31 @@ public final class StealthListener implements Listener {
         if (options(event.getPlayer().getUniqueId()).filter(StealthOptions::muteChat).isEmpty()) {
             return;
         }
-        if (!MESSAGE_COMMANDS.contains(label(event.getMessage()))) {
+        String[] parts = event.getMessage().substring(1).trim().split("\\s+");
+        String label = label(parts[0]);
+        if (!MESSAGE_COMMANDS.contains(label)) {
             return;
         }
-        event.setCancelled(true);
-        Text.send(new PaperPlayerRef(event.getPlayer()), "ghost.muted");
+        int body = overrideIndex(parts, TARGETED_COMMANDS.contains(label) ? 2 : 1);
+        if (body < 0) {
+            event.setCancelled(true);
+            Text.send(new PaperPlayerRef(event.getPlayer()), "ghost.muted");
+            return;
+        }
+        parts[body] = parts[body].substring(OVERRIDE.length());
+        event.setMessage("/" + Arrays.stream(parts).filter(part -> !part.isEmpty())
+                .collect(Collectors.joining(" ")));
     }
 
-    private String label(String message) {
-        String command = message.substring(1).trim().split("\\s+")[0].toLowerCase(Locale.ROOT);
+    private int overrideIndex(String[] parts, int body) {
+        if (body < parts.length && parts[body].startsWith(OVERRIDE)) {
+            return body;
+        }
+        return parts.length > 1 && parts[1].startsWith(OVERRIDE) ? 1 : -1;
+    }
+
+    private String label(String token) {
+        String command = token.toLowerCase(Locale.ROOT);
         int colon = command.indexOf(':');
         return colon < 0 ? command : command.substring(colon + 1);
     }

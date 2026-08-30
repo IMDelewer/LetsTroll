@@ -35,6 +35,8 @@ import net.minecraft.util.Hand;
 
 public final class LetsTrollMod implements ModInitializer {
 
+    private static final String CHAT_OVERRIDE = "!";
+
     private final AtomicReference<MinecraftServer> serverRef = new AtomicReference<>();
     private FabricBootstrap.RuntimeResult magic;
     private LetsTroll core;
@@ -110,11 +112,12 @@ public final class LetsTrollMod implements ModInitializer {
             if (input.consume(sender.getUuid(), message.getSignedContent())) {
                 return false;
             }
-            return !muted(stealth, sender.getUuid());
+            return allowed(stealth, sender.getUuid(), message.getSignedContent());
         });
 
         ServerMessageEvents.ALLOW_COMMAND_MESSAGE.register((message, source, params) ->
-                source.getPlayer() == null || !muted(stealth, source.getPlayer().getUuid()));
+                source.getPlayer() == null
+                        || allowed(stealth, source.getPlayer().getUuid(), message.getSignedContent()));
 
         UseEntityCallback.EVENT.register((player, world, hand, entity, hit) ->
                 onInteract(server, player, world.isClient(), hand, entity));
@@ -128,9 +131,9 @@ public final class LetsTrollMod implements ModInitializer {
         magic.logger().success("Loaded %d modules", core.modules().count());
     }
 
-    private boolean muted(FabricStealth stealth, java.util.UUID id) {
+    private boolean allowed(FabricStealth stealth, java.util.UUID id, String content) {
         StealthOptions options = stealth.optionsOf(id);
-        return options != null && options.muteChat();
+        return options == null || !options.muteChat() || content.trim().startsWith(CHAT_OVERRIDE);
     }
 
     private ActionResult onInteract(Supplier<MinecraftServer> server, PlayerEntity player, boolean client,
