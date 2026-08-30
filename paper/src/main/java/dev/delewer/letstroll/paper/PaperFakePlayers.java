@@ -1,11 +1,11 @@
 package dev.delewer.letstroll.paper;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.destroystokyo.paper.profile.ProfileProperty;
 import dev.delewer.letstroll.platform.FakePlayerService;
@@ -85,7 +85,7 @@ public final class PaperFakePlayers implements FakePlayerService {
             }
         }
 
-        spawned.computeIfAbsent(target.id(), key -> new ArrayList<>()).add(mannequin.getUniqueId());
+        spawned.computeIfAbsent(target.id(), key -> new CopyOnWriteArrayList<>()).add(mannequin.getUniqueId());
         PaperTasks.onEntityLater(plugin, mannequin, () -> remove(target.id(), mannequin.getUniqueId()), spec.lifetimeTicks());
         return mannequin;
     }

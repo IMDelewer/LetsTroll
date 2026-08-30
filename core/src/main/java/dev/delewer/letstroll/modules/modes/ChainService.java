@@ -1,11 +1,12 @@
 package dev.delewer.letstroll.modules.modes;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import dev.delewer.letstroll.LetsTroll;
 import dev.delewer.letstroll.platform.ChainOps;
@@ -55,8 +56,8 @@ public final class ChainService {
 
     private final LetsTroll core;
     private final ChainConfig config;
-    private final Map<UUID, Link> byPlayer = new LinkedHashMap<>();
-    private final List<Link> links = new ArrayList<>();
+    private final Map<UUID, Link> byPlayer = new ConcurrentHashMap<>();
+    private final List<Link> links = new CopyOnWriteArrayList<>();
     private TaskScheduler.Cancellable ticker;
 
     public ChainService(LetsTroll core, ChainConfig config) {
