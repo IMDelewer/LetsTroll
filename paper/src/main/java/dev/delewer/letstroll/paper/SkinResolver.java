@@ -22,6 +22,8 @@ public final class SkinResolver {
     private static final Pattern HASH = Pattern.compile("([0-9a-fA-F]{48,})");
     private static final Pattern NAME = Pattern.compile("[A-Za-z0-9_]{1,16}");
 
+    private static final int CACHE_CAP = 512;
+
     private final MagicHttpClient http;
     private final ConcurrentHashMap<String, Optional<String>> cache = new ConcurrentHashMap<>();
 
@@ -110,13 +112,20 @@ public final class SkinResolver {
                                 .map(this::textureOf)
                                 .orElseGet(() -> CompletableFuture.completedFuture(Optional.empty())))
                 .thenApply(value -> {
-                    cache.put(key, value);
+                    remember(key, value);
                     return value;
                 })
                 .exceptionally(error -> {
-                    cache.put(key, Optional.empty());
+                    remember(key, Optional.empty());
                     return Optional.empty();
                 });
+    }
+
+    private void remember(String key, Optional<String> value) {
+        if (cache.size() >= CACHE_CAP) {
+            cache.clear();
+        }
+        cache.put(key, value);
     }
 
     private CompletableFuture<Optional<String>> textureOf(String uuid) {

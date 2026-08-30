@@ -15,6 +15,8 @@ import dev.delewer.letstroll.platform.PlayerRef;
 
 public final class MenuRouter {
 
+    private static final int HISTORY_CAP = 32;
+
     private final LetsTroll core;
     private final Map<String, Screen> screens = new LinkedHashMap<>();
     private final Map<UUID, Deque<ScreenRequest>> history = new ConcurrentHashMap<>();
@@ -48,6 +50,9 @@ public final class MenuRouter {
         ScreenRequest current = stack.peek();
         if (current == null || !current.screenId().equals(request.screenId()) || !current.args().equals(request.args())) {
             stack.push(request);
+            while (stack.size() > HISTORY_CAP) {
+                stack.removeLast();
+            }
         } else {
             stack.pop();
             stack.push(request);

@@ -102,9 +102,13 @@ public final class GhostService {
         if (!config.persist()) {
             return;
         }
+        List<String> lines = ghosts.stream().map(UUID::toString).toList();
+        platform.scheduler().async(() -> write(lines));
+    }
+
+    private synchronized void write(List<String> lines) {
         try {
             Files.createDirectories(storage.getParent());
-            List<String> lines = ghosts.stream().map(UUID::toString).toList();
             Files.write(storage, lines, StandardCharsets.UTF_8);
         } catch (IOException exception) {
             platform.logger().log(Level.WARNING, "Unable to write ghost storage", exception);
