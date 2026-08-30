@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.1]
+
+### Fixed
+
+- The Modrinth release now declares Fabric API as a required dependency. Without it a Fabric
+  server refuses to launch (`requires any version of fabric-api, which is missing`), and the
+  download page gave no hint that it was needed.
+
+### Changed
+
+- Release builds cache the Loom Minecraft jars, mappings and remapped dependencies, and the
+  Gradle dependency cache is now written on tag builds instead of being read-only.
+- README spells out the Fabric requirements: Fabric API, and op level 2 for `/troll` and
+  `/ghost` unless a permissions mod grants the nodes.
+
 ## [2.2.0]
 
 ### Added

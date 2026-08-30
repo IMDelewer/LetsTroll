@@ -9,7 +9,7 @@ extra["langMetadata"] = mapOf(
     "language.version" to "1.0"
 )
 
-val projectVersion = (findProperty("buildVersion") as String?)?.takeIf { it.isNotBlank() } ?: "2.2.0"
+val projectVersion = (findProperty("buildVersion") as String?)?.takeIf { it.isNotBlank() } ?: "2.2.1"
 
 subprojects {
     apply(plugin = "java")
