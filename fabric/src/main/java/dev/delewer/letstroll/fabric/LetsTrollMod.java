@@ -97,7 +97,11 @@ public final class LetsTrollMod implements ModInitializer {
         ServerPlayConnectionEvents.DISCONNECT.register((handler, instance) -> {
             ServerPlayerEntity player = handler.player;
             events.fireQuit(player);
-            core.router().forget(player.getUuid());
+            LetsTroll running = core;
+            if (running != null) {
+                running.router().forget(player.getUuid());
+            }
+            ping.forget(player.getUuid());
             menus.forget(player.getUuid());
             input.forget(player.getUuid());
         });

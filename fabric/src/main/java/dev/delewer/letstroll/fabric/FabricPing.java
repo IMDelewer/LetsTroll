@@ -45,6 +45,10 @@ public final class FabricPing implements PingService {
         return faked.contains(id);
     }
 
+    public void forget(UUID id) {
+        faked.remove(id);
+    }
+
     @Override
     public void clearAll() {
         faked.clear();
