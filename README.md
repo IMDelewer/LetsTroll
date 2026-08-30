@@ -16,6 +16,10 @@ Everything starts from a single `/troll` menu with tabs for players, events, bin
 
 The project is split into a platform independent core and thin platform adapters. Paper, Purpur, Folia and Fabric run the same features today; Velocity can follow with another adapter.
 
+On Fabric the mod needs [Fabric API](https://modrinth.com/mod/fabric-api) — the server refuses to
+launch without it — and `/troll` and `/ghost` are op level 2 by default, so a non-op player will not
+see them unless a permissions mod grants `letstroll.use` and `letstroll.ghost`.
+
 On Folia every scheduled task runs on the region that owns the player or entity it touches, so nothing crosses a region thread.
 
 ---

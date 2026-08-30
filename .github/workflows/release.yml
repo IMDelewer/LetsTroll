@@ -90,10 +90,15 @@ jobs:
               paper
               purpur
               folia
+            dependencies: ''
           - artifact: LetsTroll-fabric
             loaders: |
               fabric
               quilt
+            # The mod hard-depends on Fabric API; without this the server refuses to launch
+            # and Modrinth would not tell anyone to install it.
+            dependencies: |
+              fabric-api(required)
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -110,6 +115,7 @@ jobs:
           version: ${{ needs.build.outputs.version }}
           version-type: release
           loaders: ${{ matrix.loaders }}
+          dependencies: ${{ matrix.dependencies }}
           game-versions: ${{ needs.build.outputs.minecraft }}
           java: 21
           # Unfeaturing older versions needs a token that may edit versions;
